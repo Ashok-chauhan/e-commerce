@@ -1,0 +1,106 @@
+{{!-- <h2>Add Product</h2>
+<form action="/admin/products" method="POST" enctype="multipart/form-data">
+
+  <input type="text" name="name" placeholder="Name" required />
+  <textarea name="description" placeholder="Description" required></textarea>
+  <input type="number" name="price" placeholder="Price" required />
+  <select name="category_id" required>
+    {{#each categories}}
+      <option value="{{this.id}}">{{this.name}}</option>
+    {{/each}}
+  </select>
+
+  <input type="number" name="discount_percent" placeholder="Discount (%)" />
+  <input type="file" name="images" multiple />
+  <button type="submit">Save</button>
+</form> --}}
+
+
+<div class="col-md-4 mx-auto ">
+  <h2 class="text-center">Add product</h2>
+<form action="/admin/products" method="POST" enctype="multipart/form-data" >
+  
+  <div class="form-group mt-1">
+        <input type="text" class="form-control" id="name" name="name"  placeholder="Enter name" required>
+   </div>
+   <div class="form-group mt-1">
+   
+    <textarea name="description"  class="form-control" id="description" placeholder="Description" rows="3"></textarea>
+  </div>
+    <div class="form-group mt-1">
+        <input type="price" class="form-control" id="price" name="price"  placeholder="Price" required>
+   </div>
+
+  
+
+      <select class="form-select" name="category_id" required>
+        <option selected>Select category</option>
+    {{#each categories}}
+      <option value="{{this.id}}">{{this.name}}</option>
+    {{/each}}
+  </select>
+
+
+    <div class="form-group mt-1">
+        <input type="text" class="form-control" id="discount_percent" name="discount_percent"  placeholder="Discount (%)">
+   </div>
+
+   <div class="input-group mb-3">
+      <label class="input-group-text" for="images">Upload pictures</label>
+      <input type="file" class="form-control" id="images" name="images" multiple>
+    </div>
+
+    <div class="form-group mt-1">
+        <input type="text" class="form-control" id="sales_package" name="sales_package"  placeholder="Sales package" >
+   </div>
+
+   
+
+    <div class="form-group mt-1">
+        <input type="text" class="form-control" id="pack_of" name="pack_of"  placeholder="Pack of" >
+   </div>
+    <div class="form-group mt-1">
+        <input type="text" class="form-control" id="brand" name="brand"  placeholder="Brand" >
+   </div>
+    <div class="form-group mt-1">
+        <input type="text" class="form-control" id="model" name="model"  placeholder="Model" >
+   </div>
+    <div class="form-group mt-1">
+        <input type="text" class="form-control" id="brand_color" name="brand_color"  placeholder="Brand color" >
+   </div>
+
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="care" name="care"  placeholder="Care" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="skin_type" name="skin_type"  placeholder="Skin type" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="finish" name="finish"  placeholder="Finish" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="duration" name="duration"  placeholder="Duration" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="color" name="color"  placeholder="Color" >
+   </div>
+
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="features" name="features"  placeholder="Features" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="self_life" name="self_life"  placeholder="Self life" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="highlight" name="highlight"  placeholder="Highlight" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="waterproof" name="waterproof"  placeholder="Waterproof" >
+   </div>
+   <div class="form-group mt-1">
+        <input type="text" class="form-control" id="quantity" name="quantity"  placeholder="Quantity" >
+   </div>
+
+  <button type="submit" class="btn btn-primary mt-2">Add product</button>
+</form>
+</div>

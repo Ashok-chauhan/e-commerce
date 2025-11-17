@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Payment Confirmation</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; color: #333">
+    <h2>💳 Payment Successful - Order #{{order_id}}</h2>
+
+    <p>Hi {{customer_name}},</p>
+    <p>Your payment was successful. 🎉</p>
+
+    <p>
+      <strong>Payment ID:</strong> {{payment_id}}<br />
+      <strong>Amount Paid:</strong> ₹{{amount_paid}}<br />
+      <strong>Payment Method:</strong> {{payment_method}}<br />
+      <strong>Status:</strong> Paid ✅
+    </p>
+
+    <p>
+      You can download your invoice here:
+      <a href="https://swagly.in/invoice/{{order_id}}">View Invoice</a>
+    </p>
+
+    <p>We’ll notify you once your order is shipped.</p>
+  </body>
+</html>

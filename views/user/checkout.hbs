@@ -1,0 +1,46 @@
+<h2>Pyament started...</h2>
+<p>razorpay id {{razorpayOrder.id}}</p>
+<p>Items {{razorpayOrder.currency}}</p>
+<p>Total {{razorpayOrder.amount}}</p>
+
+
+    <h1>Pay with Razorpay</h1>
+    <button id="rzp-button1">Pay Now</button>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+       
+      document.getElementById("rzp-button1").onclick = async function () {
+        const response = await fetch("/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+        const order = await response.json();
+        
+        var options = {
+          key: "YOUR_KEY_ID", // Enter the Key ID generated from Razorpay Dashboard
+          amount: order.amount,
+          currency: order.currency,
+          name: "Test Company",
+          description: "Test Transaction",
+          order_id: order.id,
+          /*
+          handler: async function (response) {
+            const verifyRes = await fetch("/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(response)
+            });
+
+            const text = await verifyRes.text();
+            alert(text);
+          }
+          */
+          theme: { color: "#3399cc" }
+        };
+
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+      };
+    </script>
+  

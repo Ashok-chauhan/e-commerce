@@ -1,0 +1,10 @@
+<h2>Manage Categories</h2>
+<form method="POST" action="/admin/categories">
+  <input type="text" name="name" placeholder="New Category" required />
+  <button type="submit">Add</button>
+</form>
+<ul>
+  {{#each categories}}
+    <li>{{this.name}}</li>
+  {{/each}}
+</ul>
