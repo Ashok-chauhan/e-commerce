@@ -1,0 +1,37 @@
+<h2>All orders</h2>
+
+{{!-- <ul>
+  {{#each categories}}
+    <li>{{this.name}}</li>
+  {{/each}}
+</ul> --}}
+
+<table class="table">
+  <thead>
+    <tr>
+         <th scope="col">#</th>
+      <th scope="col">User id</th>
+      <th scope="col">Order id</th>
+      <th scope="col">Payment id</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Status</th>
+      <th scope="col">Date</th>
+
+
+    </tr>
+  </thead>
+  <tbody>
+    {{#each allOrders}}
+    <tr>
+        <th scope="row">{{this.id}}</th>
+      <td>{{this.user_id}}</td>
+      <td><a href="/admin/orderDetails/{{this.order_id}}">{{this.order_id}}</a></td>
+      <td>{{this.payment_id}}</td>
+      <td>{{this.amount}}</td>
+      <td>{{this.status}}</td>
+      <td>{{this.created_at}}</td>
+    </tr>
+    {{/each}}
+  
+  </tbody>
+</table>

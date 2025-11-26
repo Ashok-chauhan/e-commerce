@@ -127,3 +127,33 @@ exports.createProduct = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+exports.allOrders = async (req, res) => {
+  const [allOrders] = await db.query("SELECT * FROM payments");
+  res.render("admin/allOrders", { layout: "admin", allOrders });
+};
+
+exports.orderDetails = async (req, res) => {
+  const { order_id } = req.params;
+
+  // Step 1: Get order items
+  const [orders] = await db.query(
+    `SELECT O.id, O.user_id, order_items.product_id 
+     FROM orders O 
+     LEFT JOIN order_items ON O.id = order_items.order_id 
+     WHERE O.payment_id=?`,
+    [order_id]
+  );
+
+  // Step 2: Fetch all product details in parallel
+  const ordered = await Promise.all(
+    orders.map(async (order) => {
+      const [product] = await db.query("SELECT * FROM products WHERE id = ?", [
+        order.product_id,
+      ]);
+      return product[0];
+    })
+  );
+
+  res.render("admin/orderDetails", { layout: "admin", ordered });
+};

@@ -93,6 +93,7 @@ exports.checkout = async (req, res) => {
         "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
         [orderId, item.id, item.quantity, item.discounted_price]
       );
+      req.session.user.product_id = item.id;
     });
 
     //### await db.query("DELETE FROM carts WHERE user_id = ?", [user_id]);
@@ -127,6 +128,7 @@ exports.checkout = async (req, res) => {
 // Verify payment and store in DB
 exports.verifyPayment = async (req, res) => {
   //return res.json({"succes":"Done"});
+  const user_id = req.session.user?.id;
 
   try {
     console.log(req.body);
@@ -144,9 +146,10 @@ exports.verifyPayment = async (req, res) => {
     if (generated_signature === razorpay_signature) {
       // ✅ Store payment in DB
       await db.query(
-        `INSERT INTO payments (order_id, payment_id, signature, amount, currency) 
-         VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO payments ( user_id, order_id, payment_id, signature, amount, currency) 
+         VALUES ( ?, ?, ?, ?, ?)`,
         [
+          user_id,
           razorpay_order_id,
           razorpay_payment_id,
           razorpay_signature,
@@ -165,7 +168,8 @@ exports.verifyPayment = async (req, res) => {
         `SELECT p.name, p.price, p.discount_percent, p.description, p.image ,c.quantity, c.created_at FROM products as p LEFT JOIN carts as c ON p.id = c.product_id WHERE c.user_id=?;`,
         [req.session.user.id]
       );
-
+      console.log("ROW -> ", rowOrder);
+      console.log("SESSION -> ", req.session.user);
       const shipingAddress = `<li>${req.session.user.name}</li><li>${req.session.user.address}</li>
       <li>${req.session.user.landmark}</li><li>${req.session.user.locality}</li>
       <li>${req.session.user.city}</li><li>${req.session.user.pincode}</li><li>${req.session.user.state}</li>`;

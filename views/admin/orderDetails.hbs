@@ -1,0 +1,30 @@
+<h2>Order details</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+         <th scope="col">#</th>
+      <th scope="col">Product name</th>
+      <th scope="col">Price</th>
+      <th scope="col">Discount %</th>
+      <th scope="col">Picture</th>
+      
+
+
+    </tr>
+  </thead>
+  <tbody>
+    {{#each ordered}}
+    <tr>
+        <th scope="row">{{this.id}}</th>
+      <td>{{this.name}}</td>
+      <td>{{this.price}}</td>
+      <td>{{this.discount_percent}}</td>
+      <td><img class="img-thumbnail cart-picture" src="/assets/images/{{this.image}}" /></td>
+      
+     
+    </tr>
+    {{/each}}
+  
+  </tbody>
+</table>

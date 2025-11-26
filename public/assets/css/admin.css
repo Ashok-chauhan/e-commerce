@@ -26,3 +26,7 @@ td, th {
   border: 1px solid #ccc;
   padding: 8px;
 }
+
+.cart-picture{
+  width: 200px;
+}

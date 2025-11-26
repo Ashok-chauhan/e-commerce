@@ -28,4 +28,8 @@ router.post(
   adminController.createProduct
 );
 
+// ORDER MANAGEMENT
+router.get("/orders", isAdmin, adminController.allOrders);
+router.get("/orderDetails/:order_id", isAdmin, adminController.orderDetails);
+
 module.exports = router;
