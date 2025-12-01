@@ -32,6 +32,7 @@ app.engine(
 ////////////////////////////////////////////////////////
 app.set("view engine", "hbs");
 app.set("views", "./views");
+// helper
 
 // Middlewares
 app.use(express.urlencoded({ extended: false }));
@@ -63,6 +64,11 @@ app.use(async (req, res, next) => {
       ? req.session.cart.reduce((sum, item) => sum + item.quantity, 0)
       : "";
   }
+  next();
+});
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
   next();
 });
 

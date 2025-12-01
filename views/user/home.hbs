@@ -41,11 +41,12 @@
  </div> --}}
 {{!-- class="card-img-top" --}}
   <div class="col-md-3  p-1">
-    <a href="/product/{{this.id}}">
+    <a href="/product/{{this.slug}}">
        <img src="/assets/images/{{this.image}}" class="picture" alt="{{this.name}}">
        </a>
       {{!-- <div class="card-body"> --}}
         <h5 class=" title p-1">{{this.name}}</h5>
+       
     {{#if this.discount_percent}}
       <p>
         <span class="original-price">M.R.P ₹{{this.price}}</span>
@@ -59,7 +60,7 @@
 
 
         <h6 class="description">{{this.description}}</h6>
-        <a href="/product/{{this.id}}" class="btn btn-warning btn-sm"  style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Add to cart</a>
+        <a href="/product/{{this.slug}}" class="btn btn-warning btn-sm"  style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Add to cart</a>
       {{!-- </div> --}}
     
  </div>

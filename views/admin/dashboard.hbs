@@ -1,2 +1,47 @@
-<h2>Welcome to Admin Panel</h2>
-<p>Use the navigation above to manage categories and products.</p>
+<div class="row">
+<div class="col-md-10">
+<h2>Today's orders</h2>
+<table class="table">
+  <thead>
+    <tr>
+         <th scope="col">#</th>
+      <th scope="col">User id</th>
+      <th scope="col">Order id</th>
+      <th scope="col">Payment id</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Status</th>
+      <th scope="col">Date</th>
+      <th scope="col">Order status</th>
+       <th scope="col">Update status</th>
+       <th scope="col">Slip</th>
+
+
+    </tr>
+  </thead>
+  <tbody>
+    {{#each todaysOrders}}
+  
+    <tr>
+        <th scope="row">{{this.id}}</th>
+      <td>{{this.user_id}}</td>
+      <td><a href="/admin/orderDetails/{{this.order_id}}">{{this.order_id}}</a></td>
+      <td>{{this.payment_id}}</td>
+      <td>{{this.amount}}</td>
+      <td>{{this.status}}</td>
+      <td>{{this.created_at}}</td>
+      <td>{{this.order_status}}</td>
+      <td><a href="/admin/order_process/{{this.id}}">Edit</a></td>
+      <td><a href="/admin/address/{{this.user_id}}">Gen. slip</a></td>
+
+    </tr>
+    
+    {{/each}}
+  
+  </tbody>
+</table>
+</div>
+<div class="col-md-2">
+    <h2>Today's sale</h2>
+    <div><h2>{{total}}</h2></div>
+</div>
+</div>

@@ -16,12 +16,16 @@
       <th scope="col">Amount</th>
       <th scope="col">Status</th>
       <th scope="col">Date</th>
+      <th scope="col">Order status</th>
+       <th scope="col">Update status</th>
+        <th scope="col">Address slip</th>
 
 
     </tr>
   </thead>
   <tbody>
     {{#each allOrders}}
+  
     <tr>
         <th scope="row">{{this.id}}</th>
       <td>{{this.user_id}}</td>
@@ -30,7 +34,12 @@
       <td>{{this.amount}}</td>
       <td>{{this.status}}</td>
       <td>{{this.created_at}}</td>
+      <td>{{this.order_status}}</td>
+      <td><a href="/admin/order_process/{{this.id}}">Edit</a></td>
+      <td><a href="/admin/address/{{this.user_id}}">Address slip</a></td>
+
     </tr>
+    
     {{/each}}
   
   </tbody>

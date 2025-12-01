@@ -1,0 +1,20 @@
+
+<div class="col-md-4 mx-auto">
+  <h2>User address</h2>
+<div>
+  <p>{{address.name}}</p>
+  <p>{{address.address}}
+  {{address.landmark}}</p>
+ <p> {{address.city}} - 
+  {{address.pincode}}</p>
+  <p>{{address.state}}</p>
+  {{address.phone}}
+
+ <p>
+  <a href="/admin/address/{{address.id}}/pdf" class="btn btn-primary">
+  Download shipping address
+</a>
+
+ </p>
+</div>
+</div>

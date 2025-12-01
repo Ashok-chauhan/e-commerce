@@ -29,7 +29,11 @@ router.post(
 );
 
 // ORDER MANAGEMENT
-router.get("/orders", isAdmin, adminController.allOrders);
+router.get("/orders", adminController.allOrders);
 router.get("/orderDetails/:order_id", isAdmin, adminController.orderDetails);
+router.get("/order_process/:id", isAdmin, adminController.order_process_edit);
+router.post("/order_process/:id", isAdmin, adminController.order_process_save);
+router.get("/address/:id", isAdmin, adminController.userAddress);
+router.get("/address/:id/pdf", isAdmin, adminController.userAddressPDF);
 
 module.exports = router;

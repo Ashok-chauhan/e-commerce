@@ -80,7 +80,6 @@ exports.checkout = async (req, res) => {
       currency: "INR",
       receipt: "receipt#" + Date.now(),
     });
-    razorpayOrder.key_id = razorpay.key_id;
 
     const [orderResult] = await db.query(
       "INSERT INTO orders (user_id, total, payment_status, payment_id) VALUES (?, ?, ?, ?)",
@@ -183,50 +182,5 @@ exports.verifyPayment = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error verifying payment");
-  }
-};
-
-/*
-exports.success = async (req, res) => {
-  res.render("payment/success", { layout: "main" });
-};
-*/
-
-exports.refund = async (req, res) => {
-  try {
-    //const { payment_id, amount } = req.body;
-    const { order_id, amount } = req.body;
-    const [payment] = await db.query(
-      `SELECT payment_id FROM payments WHERE order_id=?`,
-      [order_id]
-    );
-
-    const refund = await razorpay.payments.refund(payment[0].payment_id, {
-      amount: amount * 100,
-      speed: "normal",
-    });
-    // Log in DB
-    const user_id = req.session.user.id;
-    const user_name = req.session.user.name;
-    const mobile = req.session.user.mobile;
-    await db.query(
-      "INSERT INTO refunds (payment_id, refund_id, amount, user_id, user_name, mobile) VALUES (?, ?, ?, ?, ?, ?)",
-      [payment[0].payment_id, refund.id, amount, user_id, user_name, mobile]
-    );
-    await db.query(
-      `UPDATE orders set payment_status='refunded' WHERE payment_id=?`,
-      [order_id]
-    );
-    await db.query(
-      `UPDATE payments set order_status ='refunded' WHERE order_id=?`,
-      [order_id]
-    );
-
-    // res.json({ success: true, refund });
-    res.render("checkout/refund", { layout: "main", refund });
-  } catch (error) {
-    console.log("Refund error:", error);
-    // res.status(500).json({ error: "Refund failed" });
-    res.render("checkout/refund", { layout: "main", error });
   }
 };

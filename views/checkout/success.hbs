@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Payment Successful</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f6fafc;
+    margin: 0;
+    padding: 0;
+  }
+
+  .success-box {
+    max-width: 500px;
+    margin: 80px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .success-icon {
+    font-size: 70px;
+    color: #2ecc71;
+  }
+
+  .title {
+    font-size: 26px;
+    margin-top: 10px;
+    color: #2c3e50;
+  }
+
+  .details {
+    margin-top: 20px;
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .details span {
+    font-weight: bold;
+    color: #111;
+  }
+
+  .btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 10px 20px;
+    background: #3498db;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 15px;
+    transition: 0.2s ease;
+  }
+
+  .btn:hover {
+    background: #2176b8;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="success-box">
+  <div class="success-icon">✔</div>
+
+  <h2 class="title">Payment Successful</h2>
+
+  <div class="details">
+    <p>Your payment has been successfully completed.</p>
+
+    <p><span>Order ID:</span> {{order_id}}</p>
+    <p><span>Payment ID:</span> {{payment_id}}</p>
+  </div>
+
+  <a href="/" class="btn">Return Home</a>
+</div>
+
+</body>
+</html>

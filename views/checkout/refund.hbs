@@ -1,0 +1,9 @@
+{{#if refund}}
+<h4 class="alert alert-success">Refund successful! Refund ID : {{refund.id}}</h4>
+<p>
+    Amount will be credited to your bank account within 5-7 working days after the refund has processed
+</p>
+{{else}} 
+<h4 class="alert alert-warning">Refund error! : {{error.error.description}}</h4>
+
+{{/if}}

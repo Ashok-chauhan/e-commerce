@@ -61,3 +61,7 @@ body{
 .thumbnails { display: flex; gap: 10px; }
 .thumbnails img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
 .thumbnails img:hover { border: 2px solid #333; }
+
+.myorder{
+  color: #2e7d32;
+}

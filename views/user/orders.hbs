@@ -1,0 +1,43 @@
+<div class="row">
+  <div class="col-md-3">
+    Deliver to: <h6>{{user.name}}, {{user.pincode}}</h6>
+    <p>{{user.address}}</p>
+  </div>
+  <div class="col-md-9">
+<h2 class="myorder">Your Orders</h2>
+<div class="row">
+  <div>
+{{#if orders.length}}
+<table class="table">
+{{#each orders}}
+<tr>
+  <td colspan="2"><strong class="myorder">Ordered on {{this.created_at}}</strong></td>
+ 
+ 
+   <td>
+    <form action="checkout/refund" method="POST" name="{{this.payment_id}}">
+    <input type="hidden" name="order_id" value="{{this.payment_id}}"/>
+    <input type="hidden" name="amount" value="{{this.total}}"/>
+    <button type="submit" class="btn btn-warning btn-sm">Refund/return</button>
+    </form>
+  </td>
+ 
+ 
+</tr>
+{{#each this.items}}
+<tr>
+  <td><img class="img-thumbnail cart-picture" src="/assets/images/{{this.image}}" /></td>
+  <td>{{this.name}}</td>
+  <td>{{this.price}}</td>
+ 
+</tr>
+
+{{/each}}
+{{/each}}
+</table>
+{{/if}}
+</div>
+</div>
+</div>
+</div>
+  

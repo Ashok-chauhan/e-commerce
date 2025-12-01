@@ -1,7 +1,20 @@
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
 const db = require("../config/db");
+const slugify = require("slugify");
 
-exports.dashboard = (req, res) =>
-  res.render("admin/dashboard", { layout: "admin" });
+exports.dashboard = async (req, res) => {
+  let total = 0;
+  const [todaysOrders] = await db.query(
+    `SELECT * FROM payments WHERE DATE(created_at) = CURDATE() ORDER BY id DESC`
+  );
+
+  todaysOrders.forEach((amt) => {
+    total += amt.amount;
+  });
+  res.render("admin/dashboard", { layout: "admin", todaysOrders, total });
+};
 
 exports.getCategories = async (req, res) => {
   const [categories] = await db.query("SELECT * FROM categories");
@@ -73,13 +86,14 @@ exports.createProduct = async (req, res) => {
     waterproof,
     quantity,
   } = req.body;
-
+  const slug = slugify(name, { lower: true, strict: true });
   try {
     // insert product first
     const [result] = await db.query(
-      "INSERT INTO products (name, description, price, discount_percent, category_id, image) VALUES (?, ?, ?, ?, ?,? )",
+      "INSERT INTO products (name, slug, description, price, discount_percent, category_id, image) VALUES (?, ?, ?, ?, ?,?,? )",
       [
         name,
+        slug,
         description,
         price,
         discount_percent || 0,
@@ -156,4 +170,83 @@ exports.orderDetails = async (req, res) => {
   );
 
   res.render("admin/orderDetails", { layout: "admin", ordered });
+};
+
+exports.order_process_edit = async (req, res) => {
+  const { id } = req.params;
+
+  const [rows] = await db.query("SELECT * FROM payments WHERE id = ?", [id]);
+
+  const order = rows[0];
+
+  const statusOptions = [
+    "ordered",
+    "dispatched",
+    "delivered",
+    "returned",
+    "refunded",
+  ];
+
+  const options = statusOptions.map((s) => ({
+    value: s,
+    selected: s === order.order_status ? "selected" : "",
+  }));
+
+  res.render("admin/order_process_edit", { order, options });
+};
+exports.order_process_save = async (req, res) => {
+  const { id } = req.params;
+  const { order_status } = req.body;
+
+  await db.query("UPDATE payments SET order_status = ? WHERE id = ?", [
+    order_status,
+    id,
+  ]);
+
+  // res.redirect("/orderDetails/" + id);
+  res.redirect("/admin/orders");
+};
+
+exports.userAddress = async (req, res) => {
+  const id = req.params.id;
+  const [rows] = await db.query(`SELECT * FROM users WHERE id= ?`, [id]);
+  res.render("admin/address", { address: rows[0] });
+};
+
+exports.userAddressPDF = async (req, res) => {
+  const id = req.params.id;
+
+  const [rows] = await db.query(`SELECT * FROM users WHERE id=?`, [id]);
+  const user = rows[0];
+
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
+
+  // Create PDF Document
+  const doc = new PDFDocument();
+
+  // Set response headers for download
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename=address_${user.name}.pdf`
+  );
+
+  // Pipe PDF to response
+  doc.pipe(res);
+
+  // PDF Content
+  doc.fontSize(24).text("Shipping address", { underline: true });
+  doc.moveDown();
+
+  doc.fontSize(14).text(`Name: ${user.name}`);
+  doc.text(`Address: ${user.address}`);
+  doc.text(`Landmark: ${user.landmark}`);
+  doc.text(`City: ${user.city}`);
+  doc.text(`Pincode: ${user.pincode}`);
+  doc.text(`State: ${user.state}`);
+  doc.text(`Phone: ${user.phone}`);
+
+  doc.end();
 };

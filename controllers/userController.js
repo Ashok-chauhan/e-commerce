@@ -71,8 +71,6 @@ exports.loginUser = async (req, res) => {
     if (!valid) return res.redirect("/login");
 
     req.session.user = rows[0];
-    /////////////////////////////////
-
     // 🔹 Merge session cart into DB
     if (req.session.cart && req.session.cart.length > 0) {
       for (let item of req.session.cart) {
@@ -84,9 +82,13 @@ exports.loginUser = async (req, res) => {
       // Clear session cart after merging
       req.session.cart = [];
     }
-    /////////////////////////////////
+
     logger.info(`User logged in: ${email}`);
-    res.redirect("/");
+    if (req.session.user.role == "admin") {
+      res.redirect("/admin/dashboard");
+    } else {
+      res.redirect("/");
+    }
   } catch (err) {
     logger.error("Login Error: " + err.message);
     res.status(500).send("Something went wrong");
@@ -98,4 +100,29 @@ exports.logoutUser = (req, res) => {
   req.session.destroy(() => {
     res.redirect("/login");
   });
+};
+
+exports.addressEdit = async (req, res) => {
+  try {
+    const id = req.params.uid;
+    const [rows] = await db.query(`SELECT * FROM users WHERE id=?`, [id]);
+    res.render("user/addressEdit", { address: rows[0] });
+  } catch (err) {
+    res.status(500).send("Something went wrong");
+  }
+};
+
+exports.addressSave = async (req, res) => {
+  try {
+    const { id, address, locality, landmark, city, pincode, state, phone } =
+      req.body;
+    await db.query(
+      `UPDATE users set address=? , locality=?, landmark=?, city=?, pincode=?, state=?, phone=? WHERE id=?`,
+      [address, locality, landmark, city, pincode, state, phone, id]
+    );
+    //res.send("done.");
+    res.render("user/addressEditSuccess");
+  } catch (err) {
+    res.status(500).send("Something went wrong" + err);
+  }
 };

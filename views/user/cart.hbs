@@ -7,7 +7,7 @@
 <h2>Your Cart</h2>
 {{#if items.length}}
 <table class="table">
-  <tr><th>Picture</th><th>Product</th><th>-</th><th>Qty</th><th>+</th><th>Price</th><th>Total</th></tr>
+  <tr><th>Picture</th><th>Product</th><th>-</th><th>Qty</th><th>+</th><th>Price</th><th>Total</th><th>Delete</th></tr>
   {{#each items}}
     <tr>
       <td><img class="img-thumbnail cart-picture" src="/assets/images/{{this.image}}" /></td>
@@ -29,10 +29,13 @@
        </td>
       {{#if this.discount_percent}}
       <td><span class="original-price">M.R.P ₹{{multiply this.price this.quantity}}</span> <span class="discount">(-{{this.discount_percent}}% off) </span><span  class="final-price"> ₹{{multiply this.discounted_price this.quantity}}</span></td>
-      <td>{{multiply this.discounted_price this.quantity}}</td>
+      <td>{{multiply this.discounted_price this.quantity}} </td>
+      <td><a href="/cart/{{this.cart_id}}"> <i class="bi bi-trash3" style="font-size: 2rem;"></i> </a></td>
       {{else}}
        <td><span  class="final-price"> ₹{{multiply this.discounted_price this.quantity}}</span></td>
-      <td>{{multiply this.discounted_price this.quantity}}</td>
+      <td>{{multiply this.discounted_price this.quantity}} </td>
+      <td><a href="/cart/{{this.cart_id}}"> <i class="bi bi-trash3" style="font-size: 2rem;"></i> </a></td>
+
       {{/if}}
     </tr>
   {{/each}}
@@ -62,7 +65,7 @@
         const order = await response.json();
         
         var options = {
-          key: "rzp_test_RkIME8WBVEpo9W", // Enter the Key ID generated from Razorpay Dashboard
+          key: order.key_id, // "rzp_test_RkIME8WBVEpo9W" Enter the Key ID generated from Razorpay Dashboard
           amount: order.amount,
           currency: order.currency,
           name: "Swagly.in",
@@ -80,6 +83,7 @@
 
             const text = await verifyRes.text();
             alert(text);
+            // show popup and on click ok redirect to home
           },
           
           theme: { color: "#3399cc" }

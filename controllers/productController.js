@@ -21,7 +21,7 @@ exports.homePage = async (req, res) => {
     // `);
 
     const [rows] = await db.query(`
-      SELECT p.id, p.name, p.description, p.price, p.discount_percent,
+      SELECT p.id, p.name, p.slug, p.description, p.price, p.discount_percent,
              c.name AS category,
              (SELECT pi.image_path FROM product_images pi WHERE pi.product_id = p.id LIMIT 1) AS image
       FROM products p
@@ -30,7 +30,25 @@ exports.homePage = async (req, res) => {
     //console.log(rows);
     const products = rows.map((p) => applyDiscount(p));
 
-    res.render("user/home", { layout: "main", products });
+    res.render("user/home", {
+      layout: "main",
+      products,
+      meta: {
+        title: "Swagly | Trendy Cosmetics and Fashion in India",
+        description:
+          "Swagly brings affordable, stylish cosmetics and fashion apparel tailored for Indian trends",
+        keywords:
+          "cosmetics India, affordable makeup, fashion apparels, Indian style, lipstick trends, dresses online, skincare India, Swagly",
+        ogTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
+        ogDescription:
+          "Affordable makeup and stylish fashion for Indian tastes. Subscribe now for exclusive updates.",
+        url: "https://swagly.in",
+        image: "https://swagly.in/logo.png",
+        type: "website",
+        twitterTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
+        twitterDescription: "Swagly. Get beauty + fashion curated for you.",
+      },
+    });
   } catch (err) {
     logger.error("Product listing error: " + err.message);
     res.status(500).send("Error loading products");
@@ -40,37 +58,45 @@ exports.homePage = async (req, res) => {
 exports.productDetails = async (req, res) => {
   //  const id = req.params.id;
   try {
-    const { id } = req.params;
-    /*
-    const [[product]] = await db.query("SELECT * FROM products WHERE id = ?", [
-      id,
-    ]);
-*/
+    const { slug } = req.params;
 
+    // const [[item]] = await db.query("SELECT * FROM products WHERE slug = ?", [
+    //   slug,
+    // ]);
+
+    // console.log(item, slug);
+    // return;
     const [[product]] = await db.query(
       `
   SELECT p.*, d.sales_package, d.pack_of, d.brand, d.model, d.brand_color, d.care, d.skin_type, d.finish, d.duration, d.color, d.features, d.self_life, d.highlight, d.waterproof, d.quantity
   FROM products p
   LEFT JOIN product_details d ON p.id = d.product_id
-  WHERE p.id = ?
+  WHERE p.slug = ?
 `,
-      [id]
+      [slug]
     );
 
     const prod = [product].map((p) => applyDiscount(p));
-
     const [images] = await db.query(
       "SELECT image_path FROM product_images WHERE product_id = ?",
-      [id]
+      [product.id]
     );
-
     product.images = images;
-
     res.render("user/product-detail", {
       layout: "main",
       product: product,
-
-      // product: rows[0],
+      meta: {
+        title: `${product.name} | Swagly`,
+        description: product.description,
+        keywords: `${product.name}, swagly, cosmetics`,
+        ogTitle: product.name,
+        ogDescription: product.description,
+        url: `https://swagly.in/product/${product.slug}`,
+        image: `https://swagly.in/assets/images/${product.image}`,
+        type: "product",
+        twitterTitle: product.name,
+        twitterDescription: product.description,
+      },
     });
   } catch (err) {
     logger.error("Product detail error: " + err.message);
@@ -87,7 +113,7 @@ exports.viewOrders = async (req, res) => {
   for (let order of orders) {
     const [items] = await db.query(
       `
-      SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE order_id = ?
+      SELECT oi.*, p.name, p.image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE order_id = ?
     `,
       [order.id]
     );
@@ -170,60 +196,6 @@ exports.viewCart = async (req, res) => {
   }
 };
 
-///////////////////////////////////
-
-exports.checkout = async (req, res) => {
-  const user_id = req.session.user?.id;
-  if (!user_id) return res.redirect("/login");
-
-  try {
-    const [items] = await db.query(
-      `
-      SELECT p.id, p.name, p.price, c.quantity 
-      FROM carts c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?
-    `,
-      [user_id]
-    );
-
-    const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-    const razorpayOrder = await razorpay.orders.create({
-      amount: total * 100,
-      currency: "INR",
-      receipt: "receipt#" + Date.now(),
-    });
-
-    const [orderResult] = await db.query(
-      "INSERT INTO orders (user_id, total, payment_status, payment_id) VALUES (?, ?, ?, ?)",
-      [user_id, total, "pending", razorpayOrder.id]
-    );
-    // 3️⃣ Get numeric order id from our DB
-    const orderId = orderResult.insertId;
-
-    items.forEach(async (item) => {
-      await db.query(
-        "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
-        [orderId, item.id, item.quantity, item.price]
-      );
-    });
-
-    await db.query("DELETE FROM carts WHERE user_id = ?", [user_id]);
-
-    // res.send(`<h2>Payment Started</h2><p>Order ID: ${
-    //   razorpayOrder.id
-    // }</p><p>Amount: ₹${total}</p><script src="https://checkout.razorpay.com/v1/checkout.js"
-    //     data-key="${process.env.RAZORPAY_KEY_ID}"
-    //     data-amount="${total * 100}"
-    //     data-currency="INR"
-    //     data-order_id="${razorpayOrder.id}">
-    //     </script>`);
-    res.json(razorpayOrder); // send order to frontend
-  } catch (err) {
-    logger.error("Checkout error: " + err.message);
-    res.status(500).send("Checkout error");
-  }
-};
-
 exports.plus = async (req, res) => {
   const user_id = req.session.user?.id;
   if (!user_id) return res.redirect("/login");
@@ -249,6 +221,20 @@ exports.minus = async (req, res) => {
         qty,
         cartid,
       ]);
+    }
+    res.redirect("/cart");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.deleteCart = async (req, res) => {
+  const user_id = req.session.user?.id;
+  if (!user_id) return res.redirect("/login");
+  const { id } = req.params;
+  try {
+    if (id) {
+      await db.query("DELETE FROM carts WHERE id = ?", [id]);
     }
     res.redirect("/cart");
   } catch (err) {

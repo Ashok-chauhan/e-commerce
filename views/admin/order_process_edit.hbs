@@ -1,0 +1,17 @@
+<div class="col-md-3">
+<h2>Edit Order #{{order.id}}</h2>
+
+<form action="/admin/order_process/{{order.id}}" method="POST">
+ <div class="form-group">
+     <label for="order_status">Status</label>
+    <select  class="form-control" name="order_status" id="order_status">
+    {{#each options}}
+        <option value="{{value}}" {{selected}}>{{value}}</option>
+    {{/each}}
+</select>
+ </div>
+  <p></p>
+    <button class="btn btn-warning" type="submit">Update</button>
+     
+</form>
+</div>
