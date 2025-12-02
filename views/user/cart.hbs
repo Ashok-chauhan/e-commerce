@@ -2,6 +2,7 @@
   <div class="col-md-3">
     Deliver to: <h6>{{user.name}}, {{user.pincode}}</h6>
     <p>{{user.address}}</p>
+    <a href="/address/{{user.id}}"><button type="button" class="btn btn-secondary btn-sm">Edit address</button></a>
   </div>
   <div class="col-md-9">
 <h2>Your Cart</h2>
@@ -30,23 +31,23 @@
       {{#if this.discount_percent}}
       <td><span class="original-price">M.R.P ₹{{multiply this.price this.quantity}}</span> <span class="discount">(-{{this.discount_percent}}% off) </span><span  class="final-price"> ₹{{multiply this.discounted_price this.quantity}}</span></td>
       <td>{{multiply this.discounted_price this.quantity}} </td>
-      <td><a href="/cart/{{this.cart_id}}"> <i class="bi bi-trash3" style="font-size: 2rem;"></i> </a></td>
+      <td><a href="/cart/{{this.cart_id}}"> <i class="bi bi-trash3" ></i> </a></td>
       {{else}}
        <td><span  class="final-price"> ₹{{multiply this.discounted_price this.quantity}}</span></td>
       <td>{{multiply this.discounted_price this.quantity}} </td>
-      <td><a href="/cart/{{this.cart_id}}"> <i class="bi bi-trash3" style="font-size: 2rem;"></i> </a></td>
+      <td><a href="/cart/{{this.cart_id}}"> <i class="bi bi-trash3"></i> </a></td>
 
       {{/if}}
     </tr>
   {{/each}}
 </table>
-<p>Total: ₹{{total}}</p>
+<p><strong>Total: ₹{{total}}</strong></p>
 
 {{!-- <form action="/checkout" method="POST">
   <button type="submit">Proceed to Pay</button>
 </form> --}}
 
- <h1>Pay with Razorpay</h1>
+ {{!-- <h1>Pay with Razorpay</h1> --}}
     <button id="rzp-button1" class="btn btn-warning">Buy Now</button>
 {{else}}
 <p>Your cart is empty.</p>
@@ -65,7 +66,7 @@
         const order = await response.json();
         
         var options = {
-          key: order.key_id, // "rzp_test_RkIME8WBVEpo9W" Enter the Key ID generated from Razorpay Dashboard
+          key: order.key_id, //  Enter the Key ID generated from Razorpay Dashboard
           amount: order.amount,
           currency: order.currency,
           name: "Swagly.in",
@@ -82,7 +83,8 @@
             });
 
             const text = await verifyRes.text();
-            alert(text);
+           // alert(text);
+            window.location.href = 'paymentsuccess';
             // show popup and on click ok redirect to home
           },
           

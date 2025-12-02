@@ -181,10 +181,12 @@ exports.order_process_edit = async (req, res) => {
 
   const statusOptions = [
     "ordered",
+    "processing",
     "dispatched",
     "delivered",
     "returned",
     "refunded",
+    "cancelled",
   ];
 
   const options = statusOptions.map((s) => ({

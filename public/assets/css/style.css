@@ -5,7 +5,7 @@
 }
 body{
     /* background-color: #7e7171; */
-     background: linear-gradient(135deg, #ffe5ec, #e0f7fa);
+     background: linear-gradient(135deg, #ffe5ec, #e0f7fa); 
      /* background: linear-gradient(135deg, #4f4d4d, #4f4d4d); */
      /* background: linear-gradient( #4f4d4d, #4f4d4d); */
 
@@ -52,12 +52,13 @@ body{
 
 .hero{
   width: 500px;
+  height: 300px;
 }
 
 
 .product-detail { max-width: 600px; margin: auto; padding: 20px; }
 .product-gallery { display: flex; flex-direction: column; gap: 15px; align-items: center; }
-.main-image img { width: 100%; max-width: 500px; border-radius: 12px; }
+.main-image img { width: 100%; max-width: fit-content; border-radius: 12px; }
 .thumbnails { display: flex; gap: 10px; }
 .thumbnails img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
 .thumbnails img:hover { border: 2px solid #333; }
@@ -65,3 +66,43 @@ body{
 .myorder{
   color: #2e7d32;
 }
+
+
+
+
+
+/* footer */
+/*
+Source - https://stackoverflow.com/a
+Posted by Head In Cloud, modified by community. See post 'Timeline' for change history
+Retrieved 2025-12-02, License - CC BY-SA 3.0
+*/
+
+footer{
+      background: #EEEEEE;
+      margin: 0 auto;
+      /* height: 30px; */
+      /* padding-top: 20px; */
+      padding: 40px;
+      width: 100%;
+      text-align: center;
+      /* margin-bottom: 20px; */
+  }
+  footer ul{
+  margin: 0px;
+    padding:0;
+  }
+  footer li {
+    /*  float: left;  */
+      list-style-type: none;
+      line-height: 9px;
+      height: 11px;
+      border-right: 1px solid #354052;
+      padding: 0px 10px;
+    display:inline;
+  }
+  footer li a{
+      text-decoration: none;
+      color: #354052;
+      font-size: 12px;
+  }

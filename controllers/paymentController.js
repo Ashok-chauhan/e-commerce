@@ -68,18 +68,19 @@ exports.checkout = async (req, res) => {
     `,
       [user_id]
     );
+
     const cartProduct = items.map((p) => applyDiscount(p));
 
     const total = cartProduct.reduce(
       (sum, i) => sum + i.discounted_price * i.quantity,
       0
     );
-
     const razorpayOrder = await razorpay.orders.create({
       amount: total * 100,
       currency: "INR",
       receipt: "receipt#" + Date.now(),
     });
+
     razorpayOrder.key_id = razorpay.key_id;
 
     const [orderResult] = await db.query(
@@ -229,4 +230,23 @@ exports.refund = async (req, res) => {
     // res.status(500).json({ error: "Refund failed" });
     res.render("checkout/refund", { layout: "main", error });
   }
+};
+
+exports.cancelled = async (req, res) => {
+  const { order_id } = req.body;
+  const [result] = await db.query(
+    `UPDATE payments set order_status= ? WHERE order_id=? AND order_status NOT IN ('processing','dispatched','delivered','returned','refunded','cancelled')`,
+    ["cancelled", order_id]
+  );
+
+  if (result.changedRows > 0) {
+    console.log("Order cancelled successfully");
+    req.flash("info", "Order cancelled successfully");
+    //return res.json({ success: true, message: "Order cancelled successfully" });
+  } else {
+    req.flash("error", "Order cannot be cancelled");
+    console.log("Order cannot be cancelled");
+    //return res.json({ success: false, message: "Order cannot be cancelled" });
+  }
+  res.redirect("/orders");
 };

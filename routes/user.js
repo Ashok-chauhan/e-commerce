@@ -25,6 +25,7 @@ router.post("/cart/plus", productController.plus);
 router.post("/cart/minus", productController.minus);
 router.get("/address/:uid", userController.addressEdit);
 router.post("/address", userController.addressSave);
+router.get("/paymentsuccess", userController.paymentSuccess);
 
 // router.post("/checkout", productController.checkout);
 

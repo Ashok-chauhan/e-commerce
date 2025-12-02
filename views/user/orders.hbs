@@ -7,6 +7,19 @@
 <h2 class="myorder">Your Orders</h2>
 <div class="row">
   <div>
+
+    {{#if error}}
+    <div class="alert alert-danger">
+        {{error}}
+    </div>
+    {{/if}}
+
+    {{#if info}}
+    <div class="alert alert-info">
+        {{info}}
+    </div>
+    {{/if}}
+
 {{#if orders.length}}
 <table class="table">
 {{#each orders}}
@@ -15,10 +28,15 @@
  
  
    <td>
-    <form action="checkout/refund" method="POST" name="{{this.payment_id}}">
+    {{!-- <form action="checkout/refund" method="POST" name="{{this.payment_id}}">
     <input type="hidden" name="order_id" value="{{this.payment_id}}"/>
     <input type="hidden" name="amount" value="{{this.total}}"/>
     <button type="submit" class="btn btn-warning btn-sm">Refund/return</button>
+    </form> --}}
+     <form action="checkout/cancelled" method="POST" name="{{this.payment_id}}">
+    <input type="hidden" name="order_id" value="{{this.payment_id}}"/>
+    <input type="hidden" name="amount" value="{{this.total}}"/>
+    <button type="submit" class="btn btn-warning btn-sm">Cancel order</button>
     </form>
   </td>
  

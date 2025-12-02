@@ -126,3 +126,7 @@ exports.addressSave = async (req, res) => {
     res.status(500).send("Something went wrong" + err);
   }
 };
+
+exports.paymentSuccess = (req, res) => {
+  res.render("user/success");
+};
