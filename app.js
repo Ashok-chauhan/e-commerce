@@ -23,6 +23,9 @@ app.engine(
     extname: ".hbs",
     helpers: {
       multiply: (a, b) => a * b,
+      ifEquals: function (a, b, options) {
+        return a === b ? options.fn(this) : options.inverse(this);
+      },
     },
   })
 );

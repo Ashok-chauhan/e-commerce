@@ -1,16 +1,26 @@
 <div class="row">
-<div class="col-md-10">
+<div class="col-md-6">
 <h2>Today's orders</h2>
+     {{#if info}}
+    <div class="alert alert-info">
+        {{info}}
+    </div>
+    {{/if}}
+    {{#if error}}
+    <div class="alert alert-danger">
+        {{error}}
+    </div>
+    {{/if}}
 <table class="table">
   <thead>
     <tr>
          <th scope="col">#</th>
       <th scope="col">User id</th>
       <th scope="col">Order id</th>
-      <th scope="col">Payment id</th>
+      {{!-- <th scope="col">Payment id</th> --}}
       <th scope="col">Amount</th>
       <th scope="col">Status</th>
-      <th scope="col">Date</th>
+      {{!-- <th scope="col">Date</th> --}}
       <th scope="col">Order status</th>
        <th scope="col">Update status</th>
        <th scope="col">Slip</th>
@@ -25,11 +35,32 @@
         <th scope="row">{{this.id}}</th>
       <td>{{this.user_id}}</td>
       <td><a href="/admin/orderDetails/{{this.order_id}}">{{this.order_id}}</a></td>
-      <td>{{this.payment_id}}</td>
+      {{!-- <td>{{this.payment_id}}</td> --}}
       <td>{{this.amount}}</td>
       <td>{{this.status}}</td>
-      <td>{{this.created_at}}</td>
-      <td>{{this.order_status}}</td>
+      {{!-- <td>{{this.created_at}}</td> --}}
+      {{#ifEquals this.order_status 'cancelled'}}
+      <td class="bg-warning">{{this.order_status}}
+
+        <form action="/checkout/refund" method="POST" name="{{this.payment_id}}">
+            <input type="hidden" name="payment_id" value="{{this.payment_id}}"/>
+            <input type="hidden" name="order_id" value="{{this.order_id}}"/>
+            <input type="hidden" name="amount" value="{{this.amount}}"/>
+            <button type="submit" class="btn btn-danger btn-sm">Refund</button>
+        </form>
+ 
+      </td>
+     
+      {{else}}
+        {{#ifEquals this.order_status 'refunded'}}
+        <td class="text-danger"> {{this.order_status}}</td>
+        {{else}}
+        <td >{{this.order_status}}</td>
+        {{/ifEquals}}
+      {{/ifEquals}}
+
+
+
       <td><a href="/admin/order_process/{{this.id}}">Edit</a></td>
       <td><a href="/admin/address/{{this.user_id}}">Gen. slip</a></td>
 
@@ -40,7 +71,7 @@
   </tbody>
 </table>
 </div>
-<div class="col-md-2">
+<div class="col-md-6">
     <h2>Today's sale</h2>
     <div><h2>{{total}}</h2></div>
 </div>

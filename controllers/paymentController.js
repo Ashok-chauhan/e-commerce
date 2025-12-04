@@ -195,40 +195,42 @@ exports.success = async (req, res) => {
 
 exports.refund = async (req, res) => {
   try {
-    //const { payment_id, amount } = req.body;
-    const { order_id, amount } = req.body;
+    const { payment_id, order_id, amount } = req.body;
     const [payment] = await db.query(
       `SELECT payment_id FROM payments WHERE order_id=?`,
       [order_id]
     );
 
-    const refund = await razorpay.payments.refund(payment[0].payment_id, {
+    const refund = await razorpay.payments.refund(payment_id, {
       amount: amount * 100,
       speed: "normal",
     });
     // Log in DB
+
     const user_id = req.session.user.id;
     const user_name = req.session.user.name;
     const mobile = req.session.user.mobile;
     await db.query(
       "INSERT INTO refunds (payment_id, refund_id, amount, user_id, user_name, mobile) VALUES (?, ?, ?, ?, ?, ?)",
-      [payment[0].payment_id, refund.id, amount, user_id, user_name, mobile]
+      [payment_id, refund.id, amount, user_id, user_name, mobile]
     );
     await db.query(
       `UPDATE orders set payment_status='refunded' WHERE payment_id=?`,
       [order_id]
     );
-    await db.query(
+    const [result] = await db.query(
       `UPDATE payments set order_status ='refunded' WHERE order_id=?`,
       [order_id]
     );
 
+    req.flash("info", "Refunded successfully " + refund.id);
     // res.json({ success: true, refund });
-    res.render("checkout/refund", { layout: "main", refund });
+    res.redirect("/admin/dashboard");
   } catch (error) {
     console.log("Refund error:", error);
     // res.status(500).json({ error: "Refund failed" });
-    res.render("checkout/refund", { layout: "main", error });
+    req.flash("error", "Refund failed " + error.error.description);
+    res.redirect("/admin/dashboard");
   }
 };
 
@@ -237,6 +239,10 @@ exports.cancelled = async (req, res) => {
   const [result] = await db.query(
     `UPDATE payments set order_status= ? WHERE order_id=? AND order_status NOT IN ('processing','dispatched','delivered','returned','refunded','cancelled')`,
     ["cancelled", order_id]
+  );
+  await db.query(
+    `UPDATE orders set payment_status='cancelled' WHERE payment_id=?`,
+    [order_id]
   );
 
   if (result.changedRows > 0) {
