@@ -1,12 +1,19 @@
 <h2>All Products</h2>
 <a href="/admin/products/new">+ Add Product</a>
 <table>
-  <tr><th>Name</th><th>Category</th><th>Price</th></tr>
+  <tr><th>Name</th><th>Category</th><th>Price</th>
+  
+  <th>Edit product</th>
+  
+  </tr>
   {{#each products}}
     <tr>
       <td>{{this.name}}</td>
       <td>{{this.category}}</td>
       <td>₹{{this.price}}</td>
+      
+      <td><a href="/admin/productedit/{{this.id}}"><button class="btn btn-primary btn-sm">Product</button></a></td>
+
     </tr>
   {{/each}}
 </table>

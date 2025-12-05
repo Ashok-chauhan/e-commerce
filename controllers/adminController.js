@@ -11,7 +11,7 @@ exports.dashboard = async (req, res) => {
   );
 
   todaysOrders.forEach((amt) => {
-    total += amt.amount;
+    total += parseFloat(amt.amount);
   });
   res.render("admin/dashboard", { layout: "admin", todaysOrders, total });
 };
@@ -30,7 +30,6 @@ exports.getProducts = async (req, res) => {
   const [products] = await db.query(`
     SELECT p.*, c.name AS category FROM products p JOIN categories c ON p.category_id = c.id
   `);
-
   res.render("admin/products", { layout: "admin", products });
 };
 
@@ -39,28 +38,116 @@ exports.newProductForm = async (req, res) => {
   res.render("admin/new-product", { layout: "admin", categories });
 };
 
-/*
-exports.createProduct = async (req, res) => {
-  console.log(req.body);
-
-  const { name, description, price, category_id, image } = req.body;
-  await db.query(
-    "INSERT INTO products (name, description, price, category_id, image) VALUES (?, ?, ?, ?, ?)",
-    [name, description, price, category_id, image]
+exports.productedit = async (req, res) => {
+  const { id } = req.params;
+  const [categories] = await db.query("SELECT * FROM categories");
+  const [product] = await db.query(`SELECT * FROM products WHERE id=?`, [id]);
+  const [product_details] = await db.query(
+    `SELECT * FROM product_details WHERE product_id=?`,
+    [id]
   );
-  res.redirect("/admin/products");
+  const [product_images] = await db.query(
+    `SELECT * FROM product_images WHERE product_id=?`,
+    [id]
+  );
+
+  res.render("admin/product_edit", {
+    layout: "admin",
+    categories,
+    product: product[0],
+    details: product_details[0],
+    product_images,
+  });
 };
-*/
-exports.createProduct_XXXX = async (req, res) => {
-  const { name, description, price, category_id } = req.body;
-  const image = req.file.filename;
 
-  await db.query(
-    "INSERT INTO products (name, description, price, category_id, image) VALUES (?, ?, ?, ?, ?)",
-    [name, description, price, category_id, image]
+exports.productUpdate = async (req, res) => {
+  try {
+    const { id, name, description, price, category_id, discount_percent } =
+      req.body;
+    const slug = slugify(name, { lower: true, strict: true });
+
+    await db.query(
+      "UPDATE products SET name=? , slug=?, description=?, price=?, category_id=?, discount_percent=? WHERE id= ?",
+      [name, slug, description, price, category_id, discount_percent, id]
+    );
+    res.redirect(`/admin/productedit/${id}`);
+  } catch (err) {
+    console.log("Update error : ", err);
+  }
+};
+
+exports.productDetailsEdit = async (req, res) => {
+  try {
+    const {
+      id,
+      product_id,
+      pack_of,
+      brand,
+      model,
+      brand_color,
+      care,
+      skin_type,
+      finish,
+      duration,
+      color,
+      features,
+      self_life,
+      highlight,
+      waterproof,
+      quantity,
+    } = req.body;
+    await db.query(
+      `
+    UPDATE product_details SET pack_of=?, brand=?, model=?, brand_color=?, care=?, skin_type=?, finish=?, duration=?, color=?, features=?,
+    self_life=?, highlight=?, waterproof=?, quantity=? WHERE id=?
+    `,
+      [
+        pack_of,
+        brand,
+        model,
+        brand_color,
+        care,
+        skin_type,
+        finish,
+        duration,
+        color,
+        features,
+        self_life,
+        highlight,
+        waterproof,
+        quantity,
+        id,
+      ]
+    );
+    res.redirect(`/admin/productedit/${product_id}`);
+  } catch (err) {
+    console.log("Details update Error : ", err);
+  }
+};
+
+exports.productimage = async (req, res) => {
+  const { id, product_id } = req.body;
+
+  const [old] = await db.query(
+    "SELECT image_path FROM product_images WHERE id = ?",
+    [id]
   );
+  if (old.length > 0) {
+    fs.unlink(`public/assets/images/${old[0].image_path}`, (err) => {
+      if (err) console.log("File delete error: ", err);
+    });
+  }
 
-  res.redirect("/admin/products");
+  if (req.file) {
+    await db.query(
+      `UPDATE product_images 
+     SET image_path = ? 
+     WHERE id = ?`,
+      [req.file.filename, id]
+    );
+  }
+
+  res.redirect(`/admin/productedit/${product_id}`);
 };
 
 exports.createProduct = async (req, res) => {
@@ -143,7 +230,7 @@ exports.createProduct = async (req, res) => {
 };
 
 exports.allOrders = async (req, res) => {
-  const [allOrders] = await db.query("SELECT * FROM payments");
+  const [allOrders] = await db.query("SELECT * FROM payments ORDER BY id DESC");
   res.render("admin/allOrders", { layout: "admin", allOrders });
 };
 

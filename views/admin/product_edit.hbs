@@ -1,0 +1,119 @@
+<div class="col-md-4 mx-auto ">
+  <h4 class="text-center">Update product</h4>
+<form action="/admin/productedit" method="POST"  >
+<input type="hidden" name="id" value="{{product.id}}"/>
+    <div class="form-group mt-1">
+    <label>Name</label>
+        <input type="text" class="form-control" id="name" name="name"  value="{{product.name}}" required>
+   </div>
+   <div class="form-group mt-1">
+    <label>Description</label>
+      <textarea name="description"  class="form-control" id="description"  rows="3">{{product.description}}</textarea>
+  </div>
+    <div class="form-group mt-1">
+    <label>Price</label>
+        <input type="price" class="form-control" id="price" name="price"  value="{{product.price}}" required>
+   </div>
+      <select class="form-select" name="category_id" required>
+        <option disabled selected>Select category</option>
+    {{#each categories}}
+     <option value="{{this.id}}"
+      {{#if (eq this.id ../product.category_id)}}selected{{/if}}>
+      {{this.name}}
+    </option>
+    {{/each}}
+  </select>
+    <div class="form-group mt-1">
+    <label>Discount</label>
+        <input type="text" class="form-control" id="discount_percent" name="discount_percent"  value="{{product.discount_percent}}">
+   </div>
+  <button type="submit" class="btn btn-primary mt-2">Update product</button>
+</form>
+<hr>
+
+   <h4 class="text-center">Update images</h4>
+    {{#each product_images}}
+    <div><img src="/assets/images/{{this.image_path}}" class="img-thumbnail" style="width:100px;"/></div>
+    <form action="/admin/productimage" method="POST" enctype="multipart/form-data"  >
+       <div class="input-group mb-3">
+       <input type="file" class="form-control" id="image{{this.id}}" name="image" >
+       <input type="hidden" name="id" value="{{this.id}}"/>
+       <input type="hidden" name="product_id" value="{{this.product_id}}"/>
+
+      <button type="submit" class="btn btn-primary">Edit picture</button>
+      </div>
+    </form>
+    {{/each}}
+
+
+  <hr>
+<h4 class="text-center">Update product details</h4>
+  <form action="/admin/productdetailsedit" method="POST" >
+    <input type="hidden" name="id" value="{{details.id}}" />
+    <input type="hidden" name="product_id" value="{{details.product_id}}" />
+
+        <div class="form-group mt-1">
+          <label>Pack of</label>
+        <input type="text" class="form-control" id="pack_of" name="pack_of"  value="{{details.pack_of}}" >
+   </div>
+    <div class="form-group mt-1">
+      <label>Brand</label>
+        <input type="text" class="form-control" id="brand" name="brand"  value="{{details.brand}}" >
+   </div>
+    <div class="form-group mt-1">
+      <label>Model</label>
+        <input type="text" class="form-control" id="model" name="model"  value="{{details.model}}" >
+   </div>
+    <div class="form-group mt-1">
+      <label>Brand color</label>
+        <input type="text" class="form-control" id="brand_color" name="brand_color"  value="{{details.brand_color}}" >
+   </div>
+
+   <div class="form-group mt-1">
+    <label>Care</label>
+        <input type="text" class="form-control" id="care" name="care" value="{{details.care}}">
+   </div>
+   <div class="form-group mt-1">
+    <label>Skin type</label>
+        <input type="text" class="form-control" id="skin_type" name="skin_type" value="{{details.skin_type}}" >
+   </div>
+   <div class="form-group mt-1">
+    <label>Finish</label>
+        <input type="text" class="form-control" id="finish" name="finish"  value="{{details.finish}}" >
+   </div>
+   <div class="form-group mt-1">
+    <label>Duration <span class="text-danger"> *Number</span></label>
+
+        <input type="text" class="form-control" id="duration" name="duration"  value="{{details.duration}}" >
+   </div>
+   <div class="form-group mt-1">
+    <label>Color</label>
+        <input type="text" class="form-control" id="color" name="color" value="{{details.color}}" >
+   </div>
+
+   <div class="form-group mt-1">
+    <label>Features</label>
+        <input type="text" class="form-control" id="features" name="features"  value="{{details.features}}" >
+   </div>
+   <div class="form-group mt-1">
+    <label>Self life <span class="text-danger"> *Number</span></label>
+        <input type="text" class="form-control" id="self_life" name="self_life"  value="{{details.self_life}}" >
+   </div>
+   <div class="form-group mt-1">
+    <label>Highlight</label>
+        <input type="text" class="form-control" id="highlight" name="highlight"  value="{{details.highlight}}" >
+   </div>
+   <div class="form-group mt-1">
+    <label>Waterproof</label>
+        <input type="text" class="form-control" id="waterproof" name="waterproof"  value="{{details.waterproof}}" >
+   </div>
+   <div class="form-group mt-1">
+    <label>Quantity <span class="text-danger"> *Number</span></label>
+        <input type="text" class="form-control" id="quantity" name="quantity"  value="{{details.quantity}}" >
+   </div>
+
+  <button type="submit" class="btn btn-primary mt-2">Update product details</button>
+</form>
+
+
+</div>
