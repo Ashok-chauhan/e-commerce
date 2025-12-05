@@ -53,7 +53,7 @@ exports.productedit = async (req, res) => {
       [id]
     );
 
-    res.render("admin/product_edit", {
+    res.render("/admin/product_edit", {
       layout: "admin",
       categories,
       product: product[0],
