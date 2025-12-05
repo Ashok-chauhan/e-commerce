@@ -39,25 +39,29 @@ exports.newProductForm = async (req, res) => {
 };
 
 exports.productedit = async (req, res) => {
-  const { id } = req.params;
-  const [categories] = await db.query("SELECT * FROM categories");
-  const [product] = await db.query(`SELECT * FROM products WHERE id=?`, [id]);
-  const [product_details] = await db.query(
-    `SELECT * FROM product_details WHERE product_id=?`,
-    [id]
-  );
-  const [product_images] = await db.query(
-    `SELECT * FROM product_images WHERE product_id=?`,
-    [id]
-  );
+  try {
+    const { id } = req.params;
+    const [categories] = await db.query("SELECT * FROM categories");
+    const [product] = await db.query(`SELECT * FROM products WHERE id=?`, [id]);
+    const [product_details] = await db.query(
+      `SELECT * FROM product_details WHERE product_id=?`,
+      [id]
+    );
+    const [product_images] = await db.query(
+      `SELECT * FROM product_images WHERE product_id=?`,
+      [id]
+    );
 
-  res.render("admin/product_edit", {
-    layout: "admin",
-    categories,
-    product: product[0],
-    details: product_details[0],
-    product_images,
-  });
+    res.render("admin/product_edit", {
+      layout: "admin",
+      categories,
+      product: product[0],
+      details: product_details[0],
+      product_images,
+    });
+  } catch (err) {
+    console.log("Error loading edit form : ", err);
+  }
 };
 
 exports.productUpdate = async (req, res) => {
