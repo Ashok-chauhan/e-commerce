@@ -40,7 +40,8 @@ exports.newProductForm = async (req, res) => {
 
 exports.productedit = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
+
     const [categories] = await db.query("SELECT * FROM categories");
     const [product] = await db.query(`SELECT * FROM products WHERE id=?`, [id]);
     const [product_details] = await db.query(
