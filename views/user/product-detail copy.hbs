@@ -1,10 +1,7 @@
-
-
-
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-8">
     <div class="row">
-      <div class="col-md-2 d-none d-md-block">
+      <div class="col-md-1 d-none d-md-block">
 
          {{#each product.images}}
             <div class="thumbnails">
@@ -15,35 +12,31 @@
 
       
     
-    <div class="col-md-8">
-          <div class="product-gallery">
-            <div class="main-image">
-                <img id="currentImage" src="/assets/images/{{product.images.[0].image_path}}" alt="{{../product.name}}" >
-              </div>
+          <div class="col-md-11">
+                <div class="product-gallery">
+                  <div class="main-image">
+                      <img id="currentImage" src="/assets/images/{{product.images.[0].image_path}}" alt="{{../product.name}}" >
+                    </div>
+                
+            </div>
+          </div>
 
-           
-      </div>
-</div>
+    </div>
 
-</div>
-
-<div class="row d-block d-md-none">
-  <div class=" d-flex flex-row justify-content-between">
-     {{#each product.images}}
-            <div class="col-sm thumbnails">
-              <img src="/assets/images/{{this.image_path}}" alt="{{../product.name}}" onclick="changeImage(this)" />
-              </div>
-            {{/each}}
-  {{!-- <div class="col-sm">col-sm</div>
-  <div class="col-sm">col-sm</div>
-  <div class="col-sm">col-sm</div> --}}
-  </div>
-</div>
+    <div class="row d-block d-md-none">
+      <div class=" d-flex flex-row justify-content-between">
+        {{#each product.images}}
+                <div class="col-sm thumbnails">
+                  <img src="/assets/images/{{this.image_path}}" alt="{{../product.name}}" onclick="changeImage(this)" />
+                  </div>
+                {{/each}}
+        </div>
+    </div>
 
   </div>
-  <div class="col-md-6">
-      <h2>{{product.name}}</h2>
-      <p>{{product.description}}</p>
+  <div class="col-md-4">
+      <h4>{{product.name}}</h4>
+      <p>{{{product.description}}}</p>
       {{#if product.sales_package}}
       <p>Sales package: {{product.sales_package}}</p>
       {{/if}}

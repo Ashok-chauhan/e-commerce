@@ -7,26 +7,22 @@ const fs = require("fs");
 const path = require("path");
 //##const { default: orders } = require("razorpay/dist/types/orders");
 
-// Read template
-// let htmlTemplate = fs.readFileSync(
-//   path.join(__dirname, "../views/email/paymentConfirmation.html"),
-//   "utf-8"
-// );
-let htmlTemplate = fs.readFileSync(
-  path.join(__dirname, "../views/email/orderConfirmation.html"),
-  "utf-8"
+const templatePath = path.join(
+  __dirname,
+  "../views/email/orderConfirmation.html"
 );
+const baseHtmlTemplate = fs.readFileSync(templatePath, "utf-8");
 
 async function sendEmail(items, amount, address, order_id) {
-  // for (const item of orders) {
-  // }
   const orderItems = items
     .map(
       (item) =>
-        `<tr><td>${item.name} </td><td> ${item.quantity} × </td><td> ₹${item.price}</td><td>${item.discount_percent}%</td></tr>`
+        `<tr><td>${item.name}</td><td>${item.swatch_name}</td><td>${item.quantity} ×</td><td>₹${item.price}</td><td>${item.discount_percent}%</td></tr>`
     )
     .join("");
-  htmlTemplate = htmlTemplate
+
+  // Make a clean copy each time
+  let htmlTemplate = baseHtmlTemplate
     .replace("{{amount}}", amount)
     .replace("{{address}}", address)
     .replace("{{order_id}}", order_id)
@@ -36,11 +32,10 @@ async function sendEmail(items, amount, address, order_id) {
     await emailSerevice.sendEmail({
       to: "ashok@whizti.com",
       subject: "Swagly-Order Confirmation",
-      //text: "This is testing of email text",
       html: htmlTemplate,
-      attachments: [],
+      // attachments: [],
     });
-    console.log("Email with attachment sent succcesfully!");
+    console.log("Email sent successfully!");
   } catch (error) {
     console.error("Failed to send email: ", error);
   }
@@ -63,18 +58,19 @@ exports.checkout = async (req, res) => {
   try {
     const [items] = await db.query(
       `
-      SELECT p.id, p.name, p.price, p.discount_percent, c.quantity 
+      SELECT p.id, p.name, p.price, p.discount_percent, c.quantity, c.swatch_id, c.swatch_name, c.swatch_picture 
       FROM carts c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?
     `,
       [user_id]
     );
-
+    // console.log("items ", items);
     const cartProduct = items.map((p) => applyDiscount(p));
 
     const total = cartProduct.reduce(
       (sum, i) => sum + i.discounted_price * i.quantity,
       0
     );
+
     const razorpayOrder = await razorpay.orders.create({
       amount: total * 100,
       currency: "INR",
@@ -89,11 +85,17 @@ exports.checkout = async (req, res) => {
     );
     // 3️⃣ Get numeric order id from our DB
     const orderId = orderResult.insertId;
-
     items.forEach(async (item) => {
       await db.query(
-        "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
-        [orderId, item.id, item.quantity, item.discounted_price]
+        "INSERT INTO order_items (order_id, product_id, quantity, price, swatch_name, swatch_picture) VALUES (?, ?, ?, ?, ?, ?)",
+        [
+          orderId,
+          item.id,
+          item.quantity,
+          item.discounted_price,
+          item.swatch_name,
+          item.swatch_picture,
+        ]
       );
       req.session.user.product_id = item.id;
     });
@@ -162,19 +164,47 @@ exports.verifyPayment = async (req, res) => {
         "UPDATE orders SET payment_status=? WHERE payment_id=?",
         ["success", razorpay_order_id]
       );
+      // gettting id to get swatche from order_items
+      const [order] = await db.query(
+        "SELECT id FROM orders WHERE payment_id=?",
+        [razorpay_order_id]
+      );
+
+      // console.log(order[0].id);
+
       res.send("Payment Verified & Stored ✅");
 
       // Send email here
-      const [rowOrder] = await db.query(
-        `SELECT p.name, p.price, p.discount_percent, p.description, p.image ,c.quantity, c.created_at FROM products as p LEFT JOIN carts as c ON p.id = c.product_id WHERE c.user_id=?;`,
-        [req.session.user.id]
-      );
+      // const [rowOrder] = await db.query(
+      //   `SELECT p.name, p.price, p.discount_percent, p.description, p.image ,c.quantity, c.created_at FROM products as p LEFT JOIN carts as c ON p.id = c.product_id WHERE c.user_id=?;`,
+      //   [req.session.user.id]
+      // );
 
+      const [rowOrder] = await db.query(
+        `SELECT 
+      p.name, 
+      p.price, 
+      p.discount_percent, 
+      p.description, 
+      p.image,
+      c.quantity, 
+      c.created_at,
+      oi.swatch_name,
+      oi.swatch_picture
+   FROM products AS p 
+   LEFT JOIN carts AS c ON p.id = c.product_id 
+   LEFT JOIN order_items AS oi ON oi.product_id = p.id AND oi.order_id = ? 
+   WHERE c.user_id = ?`,
+        [order[0].id, req.session.user.id]
+      );
+      // console.log(rowOrder);
       const shipingAddress = `<li>${req.session.user.name}</li><li>${req.session.user.address}</li>
       <li>${req.session.user.landmark}</li><li>${req.session.user.locality}</li>
       <li>${req.session.user.city}</li><li>${req.session.user.pincode}</li><li>${req.session.user.state}</li>`;
 
+      //await sendEmail(rowOrder, amount, shipingAddress, razorpay_order_id);
       await sendEmail(rowOrder, amount, shipingAddress, razorpay_order_id);
+
       await db.query("DELETE FROM carts WHERE user_id = ?", [
         req.session.user.id,
       ]);

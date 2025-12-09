@@ -81,7 +81,13 @@ exports.productDetails = async (req, res) => {
       "SELECT image_path FROM product_images WHERE product_id = ?",
       [product.id]
     );
+    const [swatches] = await db.query(
+      "SELECT * FROM swatch WHERE product_id = ?",
+      [product.id]
+    );
     product.images = images;
+    product.swatches = swatches;
+
     res.render("user/product-detail", {
       layout: "main",
       product: product,
@@ -123,12 +129,15 @@ exports.viewOrders = async (req, res) => {
 };
 
 exports.addToCart = async (req, res) => {
-  const { product_id, quantity } = req.body;
+  const { product_id, quantity, swatch_id } = req.body;
 
   if (req.session.user) {
     const user_id = req.session.user?.id;
     // Logged in: Save in DB
     try {
+      const [swatch] = await db.query(`SELECT * FROM swatch WHERE id=?`, [
+        swatch_id,
+      ]);
       const [existing] = await db.query(
         "SELECT * FROM carts WHERE user_id = ? AND product_id = ?",
         [user_id, product_id]
@@ -140,8 +149,15 @@ exports.addToCart = async (req, res) => {
         );
       } else {
         await db.query(
-          "INSERT INTO carts (user_id, product_id, quantity) VALUES (?, ?, ?)",
-          [user_id, product_id, quantity]
+          "INSERT INTO carts (user_id, product_id, quantity, swatch_id, swatch_name, swatch_picture) VALUES (?, ?, ?, ?, ?, ?)",
+          [
+            user_id,
+            product_id,
+            quantity,
+            swatch[0].id,
+            swatch[0].name,
+            swatch[0].picture,
+          ]
         );
       }
 
@@ -174,7 +190,7 @@ exports.viewCart = async (req, res) => {
   try {
     const [items] = await db.query(
       `
-      SELECT c.id AS cart_id, p.id, p.name, p.price, p.image, p.discount_percent, c.quantity 
+      SELECT c.id AS cart_id, p.id, p.name, p.price, p.image, p.discount_percent, c.quantity, c.swatch_name, c.swatch_id, c.swatch_picture 
       FROM carts c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?
       
     `,
@@ -189,6 +205,7 @@ exports.viewCart = async (req, res) => {
 
     const [row] = await db.query(`SELECT * FROM users WHERE id = ?`, [user_id]);
     const user = row[0];
+
     res.render("user/cart", { layout: "main", items, total, user });
   } catch (err) {
     logger.error("Cart view error: " + err.message);

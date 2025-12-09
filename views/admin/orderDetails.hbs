@@ -8,6 +8,8 @@
       <th scope="col">Price</th>
       <th scope="col">Discount %</th>
       <th scope="col">Picture</th>
+      <th scope="col">Swatch</th>
+      <th scope="col">Swatch picure</th>
       
 
 
@@ -21,7 +23,9 @@
       <td>{{this.price}}</td>
       <td>{{this.discount_percent}}</td>
       <td><img class="img-thumbnail cart-picture" src="/assets/images/{{this.image}}" /></td>
-      
+      <td>{{this.swatch_name}}</td>
+      <td><img class="img-thumbnail cart-picture" src="/assets/images/{{this.swatch_picture}}" /></td>
+    
      
     </tr>
     {{/each}}

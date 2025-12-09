@@ -36,6 +36,48 @@
   </div>
   <div class="col-md-4">
       <h4>{{product.name}}</h4>
+
+
+       {{#if product.discount_percent}}
+            <p>
+              <span class="original-price">M.R.P ₹{{product.price}}</span>
+              <span class="discount">(-{{product.discount_percent}}% off)</span>
+            </p>
+            <p class="final-price">₹{{product.discounted_price}}</p>
+          {{else}}
+            <p class="final-price">₹{{product.price}}</p>
+          {{/if}}
+
+     
+            <form method="POST" action="/cart/add" >
+            <div class="row">
+
+              <!-- Image Swatches -->
+                    <div class="mb-3">
+                      <label class="form-label fw-bold">Select Color:</label>
+                      <div class="d-flex gap-2 flex-wrap">
+                        {{#each product.swatches}}
+                          <label class="swatch">
+                            <input type="radio" name="swatch_id" value="{{this.id}}" required>
+                            {{!-- <input type="hidden" name="swatch_name" value="{{this.name}}" > --}}
+
+                            <img src="/assets/images/{{this.picture}}" class="swatch-img" alt="{{this.picture}}">
+                          </label>
+                        {{/each}}
+                      </div>
+                    </div>
+
+
+                <div class="col-md-2">
+                <input type="hidden" name="product_id" value="{{product.id}}" />
+                    <input type="number" class="form-control" name="quantity" value="1" min="1" required />
+                </div>
+                <div class="col">
+                  <button type="submit" class="btn btn-warning">Add to Cart</button>
+                </div>
+              </div>
+            </form>
+
       <p>{{{product.description}}}</p>
       {{#if product.sales_package}}
       <p>Sales package: {{product.sales_package}}</p>
@@ -80,7 +122,7 @@
       <p>Waterproof: {{product.waterproof}}</p>
       {{/if}}
       
-        {{#if product.discount_percent}}
+        {{!-- {{#if product.discount_percent}}
             <p>
               <span class="original-price">M.R.P ₹{{product.price}}</span>
               <span class="discount">(-{{product.discount_percent}}% off)</span>
@@ -101,7 +143,7 @@
                   <button type="submit" class="btn btn-warning">Add to Cart</button>
                 </div>
               </div>
-            </form>
+            </form> --}}
 
        
   </div>

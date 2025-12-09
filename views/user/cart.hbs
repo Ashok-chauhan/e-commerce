@@ -12,7 +12,9 @@
   {{#each items}}
     <tr>
       <td><img class="img-thumbnail cart-picture" src="/assets/images/{{this.image}}" /></td>
-      <td>{{this.name}}</td>
+      <td>{{this.name}}
+        <div class="fw-bold"><img src="/assets/images/{{this.swatch_picture}}"/>{{this.swatch_name}}</div>
+      </td>
       <td>
         <form action="/cart/minus" method="POST">
             <input type="hidden" value={{this.cart_id}} name="cartid"/>

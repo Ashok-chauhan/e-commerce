@@ -244,20 +244,28 @@ exports.orderDetails = async (req, res) => {
 
   // Step 1: Get order items
   const [orders] = await db.query(
-    `SELECT O.id, O.user_id, order_items.product_id 
-     FROM orders O 
-     LEFT JOIN order_items ON O.id = order_items.order_id 
-     WHERE O.payment_id=?`,
+    `SELECT O.id, O.user_id, 
+          order_items.product_id, 
+          order_items.swatch_name, 
+          order_items.swatch_picture 
+   FROM orders O 
+   LEFT JOIN order_items ON O.id = order_items.order_id 
+   WHERE O.payment_id=?`,
     [order_id]
   );
 
-  // Step 2: Fetch all product details in parallel
+  // Step 2: Merge swatch fields into product object
   const ordered = await Promise.all(
     orders.map(async (order) => {
       const [product] = await db.query("SELECT * FROM products WHERE id = ?", [
         order.product_id,
       ]);
-      return product[0];
+
+      return {
+        ...product[0], // product details
+        swatch_name: order.swatch_name,
+        swatch_picture: order.swatch_picture,
+      };
     })
   );
 
