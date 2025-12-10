@@ -13,7 +13,7 @@ const templatePath = path.join(
 );
 const baseHtmlTemplate = fs.readFileSync(templatePath, "utf-8");
 
-async function sendEmail(items, amount, address, order_id) {
+async function sendEmail(items, amount, address, order_id, to) {
   const orderItems = items
     .map(
       (item) =>
@@ -30,7 +30,7 @@ async function sendEmail(items, amount, address, order_id) {
 
   try {
     await emailSerevice.sendEmail({
-      to: "ashok@whizti.com",
+      to: to,
       subject: "Swagly-Order Confirmation",
       html: htmlTemplate,
       // attachments: [],
@@ -169,16 +169,9 @@ exports.verifyPayment = async (req, res) => {
         "SELECT id FROM orders WHERE payment_id=?",
         [razorpay_order_id]
       );
-
-      // console.log(order[0].id);
-
       res.send("Payment Verified & Stored ✅");
 
       // Send email here
-      // const [rowOrder] = await db.query(
-      //   `SELECT p.name, p.price, p.discount_percent, p.description, p.image ,c.quantity, c.created_at FROM products as p LEFT JOIN carts as c ON p.id = c.product_id WHERE c.user_id=?;`,
-      //   [req.session.user.id]
-      // );
 
       const [rowOrder] = await db.query(
         `SELECT 
@@ -203,7 +196,21 @@ exports.verifyPayment = async (req, res) => {
       <li>${req.session.user.city}</li><li>${req.session.user.pincode}</li><li>${req.session.user.state}</li>`;
 
       //await sendEmail(rowOrder, amount, shipingAddress, razorpay_order_id);
-      await sendEmail(rowOrder, amount, shipingAddress, razorpay_order_id);
+      await sendEmail(
+        rowOrder,
+        amount,
+        shipingAddress,
+        razorpay_order_id,
+        req.session.user.email
+      );
+      // send email to admin
+      await sendEmail(
+        rowOrder,
+        amount,
+        shipingAddress,
+        razorpay_order_id,
+        "ashok@whizti.com"
+      );
 
       await db.query("DELETE FROM carts WHERE user_id = ?", [
         req.session.user.id,

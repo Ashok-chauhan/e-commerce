@@ -1,3 +1,31 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{product.name}}",
+  "image": [
+   {{#each product.images}}
+    "https://swagly.in/assets/images/{{this.image_path}}"
+   {{/each}}
+    ],
+  "description": "{{product.description}}",
+  "sku": "{{product.id}}",
+  "brand": {
+    "@type": "Brand",
+    "name": "Swagly"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "https://swagly.in/product/{{product.slug}}",
+    "priceCurrency": "INR",
+    "price": "{{product.price}}",
+    "availability": "https://schema.org/InStock",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>
+
+
 <div class="row">
   <div class="col-md-8">
     <div class="row">
@@ -57,11 +85,11 @@
                       <label class="form-label fw-bold">Select Color:</label>
                       <div class="d-flex gap-2 flex-wrap">
                         {{#each product.swatches}}
-                          <label class="swatch">
+                          <label class="swatch" >
                             <input type="radio" name="swatch_id" value="{{this.id}}" required>
-                            {{!-- <input type="hidden" name="swatch_name" value="{{this.name}}" > --}}
-
-                            <img src="/assets/images/{{this.picture}}" class="swatch-img" alt="{{this.picture}}">
+                           <img src="/assets/images/{{this.picture}}" class="swatch-img" alt="{{this.picture}}"
+                           onclick="selectSwatch('{{this.product_image}}')"
+                            >
                           </label>
                         {{/each}}
                       </div>

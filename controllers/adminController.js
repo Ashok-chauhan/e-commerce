@@ -48,10 +48,24 @@ exports.productedit = async (req, res) => {
       `SELECT * FROM product_details WHERE product_id=?`,
       [id]
     );
-    const [product_images] = await db.query(
+
+    const [productImages] = await db.query(
       `SELECT * FROM product_images WHERE product_id=?`,
       [id]
     );
+
+    const [swatches] = await db.query(
+      `SELECT * FROM swatch WHERE product_id = ?`,
+      [id]
+    );
+
+    const product_images = productImages.map((sw) => {
+      const image = swatches.find((img) => img.product_image === sw.image_path);
+      return {
+        ...sw,
+        swatch: image || null, // if no match, set null
+      };
+    });
 
     res.render("admin/product_edit", {
       layout: "admin",
@@ -131,8 +145,8 @@ exports.productDetailsEdit = async (req, res) => {
 };
 
 exports.productimage = async (req, res) => {
-  const { id, product_id } = req.body;
-
+  const { product_id } = req.body;
+  /*
   const [old] = await db.query(
     "SELECT image_path FROM product_images WHERE id = ?",
     [id]
@@ -151,7 +165,32 @@ exports.productimage = async (req, res) => {
       [req.file.filename, id]
     );
   }
+*/
+  if (req.file) {
+    await db.query(
+      `INSERT INTO product_images (product_id, image_path) VALUES (?, ? )`,
+      [product_id, req.file.filename]
+    );
+  }
+  res.redirect(`/admin/productedit/${product_id}`);
+};
 
+exports.swatch = async (req, res) => {
+  const { product_id, product_image, swatch_name, swatch_id } = req.body;
+
+  if (swatch_id) {
+    await db.query(
+      `UPDATE swatch set product_image=?, picture=?, name=? WHERE id=?`,
+      [product_image, req.file.filename, swatch_name, swatch_id]
+    );
+  } else {
+    if (req.file) {
+      await db.query(
+        `INSERT INTO swatch (product_id, product_image, picture, name) VALUES (?, ?, ?, ?)`,
+        [product_id, product_image, req.file.filename, swatch_name]
+      );
+    }
+  }
   res.redirect(`/admin/productedit/${product_id}`);
 };
 
@@ -190,7 +229,7 @@ exports.createProduct = async (req, res) => {
         price,
         discount_percent || 0,
         category_id,
-        req.files[0].filename,
+        req.file.filename,
       ]
     );
 
@@ -219,6 +258,7 @@ exports.createProduct = async (req, res) => {
     );
 
     // save multiple images
+    /** *******************************
     if (req.files && req.files.length > 0) {
       const imageInserts = req.files.map((file) => [productId, file.filename]);
       await db.query(
@@ -226,7 +266,7 @@ exports.createProduct = async (req, res) => {
         [imageInserts]
       );
     }
-
+*/
     res.redirect("/admin/products");
   } catch (err) {
     console.error("Error adding product:", err);

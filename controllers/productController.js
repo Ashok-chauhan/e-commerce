@@ -205,7 +205,6 @@ exports.viewCart = async (req, res) => {
 
     const [row] = await db.query(`SELECT * FROM users WHERE id = ?`, [user_id]);
     const user = row[0];
-
     res.render("user/cart", { layout: "main", items, total, user });
   } catch (err) {
     logger.error("Cart view error: " + err.message);

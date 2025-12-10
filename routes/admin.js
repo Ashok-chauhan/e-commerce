@@ -24,8 +24,8 @@ router.get("/products/new", isAdmin, adminController.newProductForm);
 router.post(
   "/products",
   isAdmin,
-  // upload.single("image"),
-  upload.array("images", 5),
+  upload.single("images"),
+  //upload.array("images", 5),
   adminController.createProduct
 );
 
@@ -45,6 +45,7 @@ router.post(
   upload.single("image"),
   adminController.productimage
 );
+router.post("/swatch", isAdmin, upload.single("image"), adminController.swatch);
 
 router.post("/productdetailsedit", isAdmin, adminController.productDetailsEdit);
 module.exports = router;

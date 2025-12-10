@@ -1,7 +1,7 @@
 <div class="col-md-4 mx-auto ">
   <h4 class="text-center">Update product</h4>
-<form action="/admin/productedit" method="POST"  >
-<input type="hidden" name="id" value="{{product.id}}"/>
+  <form action="/admin/productedit" method="POST"  >
+    <input type="hidden" name="id" value="{{product.id}}"/>
     <div class="form-group mt-1">
     <label>Name</label>
         <input type="text" class="form-control" id="name" name="name"  value="{{product.name}}" required>
@@ -9,7 +9,7 @@
    <div class="form-group mt-1">
     <label>Description</label>
       <textarea name="description"  class="form-control" id="description"  rows="3">{{product.description}}</textarea>
-  </div>
+    </div>
     <div class="form-group mt-1">
     <label>Price</label>
         <input type="price" class="form-control" id="price" name="price"  value="{{product.price}}" required>
@@ -33,17 +33,35 @@
 
    <h4 class="text-center">Update images</h4>
     {{#each product_images}}
-    <div><img src="/assets/images/{{this.image_path}}" class="img-thumbnail" style="width:100px;"/></div>
-    <form action="/admin/productimage" method="POST" enctype="multipart/form-data"  >
-       <div class="input-group mb-3">
-       <input type="file" class="form-control" id="image{{this.id}}" name="image" >
-       <input type="hidden" name="id" value="{{this.id}}"/>
+    <div class="row">
+    <div class="col-3"><img src="/assets/images/{{this.image_path}}" class="img-thumbnail" style="width:100px;"/></div>
+    <div class="col-9">
+    <form action="/admin/swatch" method="POST" enctype="multipart/form-data"  >
+       <div class="input-group mb-1">
+       <input type="file" class="form-control"  name="image" >
+       <input type="hidden" name="product_image" value="{{this.image_path}}"/>
        <input type="hidden" name="product_id" value="{{this.product_id}}"/>
+       <input type="hidden" name="swatch_id" value="{{this.swatch.id}}"/>
+       </div>
+       <div class="input-group mb-1">
+        <input type="text" name="swatch_name" value="{{this.swatch.name}}"/>
+        <img src="/assets/images/{{this.swatch.picture}}" class="img-thumbnail" style="width:40px;"/>
+       </div>
+      <button type="submit" class="btn btn-primary">Swatch</button>
 
-      <button type="submit" class="btn btn-primary">Edit picture</button>
+    </form>
+    </div>
+    </div>
+    {{/each}}
+
+     <form action="/admin/productimage" method="POST" enctype="multipart/form-data"  >
+       <div class="input-group mt-3">
+        
+       <input type="file" class="form-control"  name="image" >
+       <input type="hidden" name="product_id" value="{{product.id}}"/>
+      <button type="submit" class="btn btn-primary ">Update product picture</button>
       </div>
     </form>
-    {{/each}}
 
 
   <hr>
