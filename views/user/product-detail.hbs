@@ -51,7 +51,7 @@
 
     </div>
 
-    <div class="row d-block d-md-none">
+    {{!-- <div class="row d-block d-md-none">
       <div class=" d-flex flex-row justify-content-between">
         {{#each product.images}}
                 <div class="col-sm thumbnails">
@@ -59,7 +59,21 @@
                   </div>
                 {{/each}}
         </div>
-    </div>
+    </div> --}}
+
+      <div class="row d-block d-md-none">
+            <div class="d-flex flex-row flex-wrap justify-content-between">
+              {{#each product.images}}
+                <div class="thumbnails p-1">
+                  <img src="/assets/images/{{this.image_path}}" 
+                      alt="{{../product.name}}" 
+                      onclick="changeImage(this)" 
+                      class="img-fluid" />
+                </div>
+              {{/each}}
+            </div>
+       </div>
+
 
   </div>
   <div class="col-md-4">
