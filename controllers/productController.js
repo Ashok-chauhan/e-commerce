@@ -28,7 +28,16 @@ exports.homePage = async (req, res) => {
       JOIN categories c ON p.category_id = c.id
     `);
     //console.log(rows);
-    const products = rows.map((p) => applyDiscount(p));
+    const products = rows.map((p) => {
+      const product = applyDiscount(p);
+      const desc = product.description || "";
+
+      return {
+        ...product,
+        short_description:
+          desc.length > 100 ? desc.slice(0, 100) + "..." : desc,
+      };
+    });
 
     res.render("user/home", {
       layout: "main",
@@ -92,15 +101,15 @@ exports.productDetails = async (req, res) => {
       layout: "main",
       product: product,
       meta: {
-        title: `${product.name} | Swagly`,
+        title: `${product.meta_title || product.name} | Swagly`,
         description: product.description,
-        keywords: `${product.name}, swagly, cosmetics`,
-        ogTitle: product.name,
+        keywords: `${product.meta_title || product.name}, swagly, cosmetics`,
+        ogTitle: product.meta_title?.trim() || product.name,
         ogDescription: product.description,
         url: `https://swagly.in/product/${product.slug}`,
         image: `https://swagly.in/assets/images/${product.image}`,
         type: "product",
-        twitterTitle: product.name,
+        twitterTitle: product.meta_title?.trim() || product.name,
         twitterDescription: product.description,
       },
     });

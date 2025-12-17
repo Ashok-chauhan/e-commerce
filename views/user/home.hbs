@@ -57,7 +57,10 @@
 
 
 
-        <h6 class="description">{{this.description}}</h6>
+        {{!-- <h6 class="description">{{this.description}}</h6> --}}
+        
+        <h6 class="description">{{{this.short_description}}}</h6>
+
         <a href="/product/{{this.slug}}" class="btn btn-warning btn-sm"  style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Add to cart</a>
       {{!-- </div> --}}
     

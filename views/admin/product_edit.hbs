@@ -6,9 +6,15 @@
     <label>Name</label>
         <input type="text" class="form-control" id="name" name="name"  value="{{product.name}}" required>
    </div>
+
+    <div class="form-group mt-1">
+      <label>Meta title(Optional)</label>
+     <textarea name="meta_title"  class="form-control" id="meta_title" placeholder="Meat title (Optional)" rows="2">{{{product.meta_title}}}</textarea> 
+    </div>
    <div class="form-group mt-1">
     <label>Description</label>
-      <textarea name="description"  class="form-control" id="description"  rows="3">{{product.description}}</textarea>
+      <div id="editor" style="height: 400px;">{{{product.description}}}</div>
+      <textarea name="description"   id="description" hidden></textarea>
     </div>
     <div class="form-group mt-1">
     <label>Price</label>

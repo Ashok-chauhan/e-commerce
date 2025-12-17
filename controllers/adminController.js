@@ -81,13 +81,29 @@ exports.productedit = async (req, res) => {
 
 exports.productUpdate = async (req, res) => {
   try {
-    const { id, name, description, price, category_id, discount_percent } =
-      req.body;
+    const {
+      id,
+      name,
+      meta_title,
+      description,
+      price,
+      category_id,
+      discount_percent,
+    } = req.body;
     const slug = slugify(name, { lower: true, strict: true });
 
     await db.query(
-      "UPDATE products SET name=? , slug=?, description=?, price=?, category_id=?, discount_percent=? WHERE id= ?",
-      [name, slug, description, price, category_id, discount_percent, id]
+      "UPDATE products SET name=? , meta_title=?, slug=?, description=?, price=?, category_id=?, discount_percent=? WHERE id= ?",
+      [
+        name,
+        meta_title,
+        slug,
+        description,
+        price,
+        category_id,
+        discount_percent,
+        id,
+      ]
     );
     res.redirect(`/admin/productedit/${id}`);
   } catch (err) {
@@ -197,6 +213,7 @@ exports.swatch = async (req, res) => {
 exports.createProduct = async (req, res) => {
   const {
     name,
+    meta_title,
     description,
     price,
     discount_percent,
@@ -221,9 +238,10 @@ exports.createProduct = async (req, res) => {
   try {
     // insert product first
     const [result] = await db.query(
-      "INSERT INTO products (name, slug, description, price, discount_percent, category_id, image) VALUES (?, ?, ?, ?, ?,?,? )",
+      "INSERT INTO products (name, meta_title, slug, description, price, discount_percent, category_id, image) VALUES (?, ?, ?, ?, ?,?,?,? )",
       [
         name,
+        meta_title,
         slug,
         description,
         price,
