@@ -15,8 +15,21 @@ router.get("/dashboard", isAdmin, adminController.dashboard);
 
 // Category
 router.get("/categories", isAdmin, adminController.getCategories);
-router.post("/categories", isAdmin, adminController.createCategory);
+router.get("/categoryEdit/:id", isAdmin, adminController.categoryEdit);
 
+router.post(
+  "/categories",
+  isAdmin,
+  upload.single("image"),
+  adminController.createCategory,
+);
+
+router.post(
+  "/updateCategory",
+  isAdmin,
+  upload.single("image"),
+  adminController.updateCategory,
+);
 // Product
 router.get("/products", isAdmin, adminController.getProducts);
 router.get("/products/new", isAdmin, adminController.newProductForm);
@@ -26,7 +39,7 @@ router.post(
   isAdmin,
   upload.single("images"),
   //upload.array("images", 5),
-  adminController.createProduct
+  adminController.createProduct,
 );
 
 // ORDER MANAGEMENT
@@ -43,7 +56,7 @@ router.post(
   "/productimage",
   isAdmin,
   upload.single("image"),
-  adminController.productimage
+  adminController.productimage,
 );
 router.post("/swatch", isAdmin, upload.single("image"), adminController.swatch);
 

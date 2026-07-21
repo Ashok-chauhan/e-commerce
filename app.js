@@ -28,7 +28,7 @@ app.engine(
       },
       eq: (a, b) => a == b,
     },
-  })
+  }),
 );
 
 ////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ app.use(
     secret: "yourSecretKey",
     resave: false,
     saveUninitialized: true,
-  })
+  }),
 );
 app.use(flash());
 app.use((req, res, next) => {
@@ -66,7 +66,7 @@ app.use(async (req, res, next) => {
   if (req.session.user) {
     const [rows] = await db.query(
       "SELECT SUM(quantity) as total FROM carts WHERE user_id = ?",
-      [req.session.user.id]
+      [req.session.user.id],
     );
     res.locals.cartCount = rows[0].total || 0;
   } else {
@@ -86,7 +86,7 @@ app.use((req, res, next) => {
 app.use("/", require("./routes/user"));
 app.use("/checkout", require("./routes/payment"));
 app.use("/admin", require("./routes/admin"));
-
+app.use("/api", require("./routes/api"));
 // Error Handling
 //#app.use(require("./middlewares/errorHandler"));
 

@@ -1,0 +1,25 @@
+<h2>Manage Categories</h2>
+<div class="row">
+  <div class="col-md-3">
+    {{category.name}}
+    
+<form method="POST" action="/admin/updateCategory" enctype="multipart/form-data">
+   <div class="form-group">
+      <input type="text" name="name" value="{{category.name}}" required />
+  </div>
+  <div class="form-group">
+     <input type="file" class="form-control" id="image" name="image" >
+     <input type="hidden" name="old_image" value="{{category.image}}">
+     <input type="hidden" name="id" value="{{category.id}}">
+
+
+     <img src="/assets/images/{{category.image}}" class="img-thumbnail" style="width:200px;" />
+  </div>
+  <div class="form-group">
+    <button type="submit">Update</button>
+  </div>
+</form>
+</div>
+</div>
+
+

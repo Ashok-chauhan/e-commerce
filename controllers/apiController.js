@@ -13,8 +13,9 @@ function applyDiscount(product) {
 }
 
 exports.homePage = async (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
   try {
-    const [categories] = await db.query("SELECT * FROM categories");
+    const [category] = await db.query("SELECT * FROM categories");
     /**
     const [rows] = await db.query(`
       SELECT p.id, p.name, p.slug, p.description, p.price, p.discount_percent,
@@ -49,48 +50,33 @@ exports.homePage = async (req, res) => {
 
       return {
         ...product,
+        image: product.image
+          ? `${baseUrl}/assets/images${product.image.startsWith("/") ? "" : "/"}${product.image}`
+          : null,
         short_description:
           desc.length > 100 ? desc.slice(0, 100) + "..." : desc,
       };
     });
-
-    res.render("user/home", {
-      layout: "main",
-      categories,
-      products,
-      meta: {
-        title: "Swagly | Trendy Cosmetics and Fashion in India",
-        description:
-          "Swagly brings affordable, stylish cosmetics and fashion apparel tailored for Indian trends",
-        keywords:
-          "cosmetics India, affordable makeup, fashion apparels, Indian style, lipstick trends, dresses online, skincare India, Swagly",
-        ogTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
-        ogDescription:
-          "Affordable makeup and stylish fashion for Indian tastes. Subscribe now for exclusive updates.",
-        url: "https://swagly.in",
-        image: "https://swagly.in/logo.png",
-        type: "website",
-        twitterTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
-        twitterDescription: "Swagly. Get beauty + fashion curated for you.",
-      },
+    const categories = category.map((cat) => {
+      return {
+        ...cat,
+        image: cat.image
+          ? `${baseUrl}/assets/images${cat.image.startsWith("/") ? "" : "/"}${cat.image}`
+          : null,
+      };
     });
+    res.status(200).json({ categories, products }); //categories
   } catch (err) {
     logger.error("Product listing error: " + err.message);
-    res.status(500).send("Error loading products");
+    res.status(500).send({ error: "Error loading products" });
   }
 };
 
 exports.productDetails = async (req, res) => {
   //  const id = req.params.id;
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
   try {
     const { slug } = req.params;
-
-    // const [[item]] = await db.query("SELECT * FROM products WHERE slug = ?", [
-    //   slug,
-    // ]);
-
-    // console.log(item, slug);
-    // return;
     const [[product]] = await db.query(
       `
   SELECT p.*, d.sales_package, d.pack_of, d.brand, d.model, d.brand_color, d.care, d.skin_type, d.finish, d.duration, d.color, d.features, d.self_life, d.highlight, d.waterproof, d.quantity
@@ -110,28 +96,27 @@ exports.productDetails = async (req, res) => {
       "SELECT * FROM swatch WHERE product_id = ?",
       [product.id],
     );
-    product.images = images;
-    product.swatches = swatches;
 
-    res.render("user/product-detail", {
-      layout: "main",
-      product: product,
-      meta: {
-        title: `${product.meta_title || product.name} | Swagly`,
-        description: product.description,
-        keywords: `${product.meta_title || product.name}, swagly, cosmetics`,
-        ogTitle: product.meta_title?.trim() || product.name,
-        ogDescription: product.description,
-        url: `https://swagly.in/product/${product.slug}`,
-        image: `https://swagly.in/assets/images/${product.image}`,
-        type: "product",
-        twitterTitle: product.meta_title?.trim() || product.name,
-        twitterDescription: product.description,
-      },
+    const productImage = images.map((img) => {
+      return {
+        image_path: `${baseUrl}/assets/images/${img.image_path}`,
+      };
     });
+
+    const productSwatches = swatches.map((swatch) => {
+      return {
+        ...swatch,
+        product_image: `${baseUrl}/assets/images/${swatch.product_image}`,
+        picture: `${baseUrl}/assets/images/${swatch.picture}`,
+      };
+    });
+    product.images = productImage; //images;
+    product.swatches = productSwatches; //swatches;
+
+    res.status(200).json(product);
   } catch (err) {
     logger.error("Product detail error: " + err.message);
-    res.status(500).send("Error");
+    res.status(500).send({ error: err.message });
   }
 };
 

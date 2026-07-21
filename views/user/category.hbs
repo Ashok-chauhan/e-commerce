@@ -13,7 +13,7 @@
       </div>
 
 <div class="products row mt-3 justify-content-center">
-  <h2 class="text-center display-6">Best Sellers</h2>
+
   {{#each products}}
  
 {{!-- class="card-img-top" --}}
@@ -41,22 +41,7 @@
  </div>
 
   {{/each}}
+
 </div>
 
-<div class="row justify-content-center">
-  
-  <h2 class="text-center display-6">Explore Categories</h2>
-  {{#each categories}}
-  
 
-        <div class="card text-center col-sm-2 mb-3 mb-sm-0">
-           <div class="card-body">
-           <a href="/category/{{this.id}}"> <img src="/assets/images/{{this.image}}" class="picture" alt="{{this.name}}"></a>
-            <p> <h4 class="card-title">{{this.name}}</h4></p>
-            <a href="/category/{{this.id}}" class="btn btn-warning">Shop Now</a>
-          </div>
-         
-        </div>
-
-  {{/each}}
-</div>

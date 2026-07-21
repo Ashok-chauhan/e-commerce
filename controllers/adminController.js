@@ -7,7 +7,7 @@ const slugify = require("slugify");
 exports.dashboard = async (req, res) => {
   let total = 0;
   const [todaysOrders] = await db.query(
-    `SELECT * FROM payments WHERE DATE(created_at) = CURDATE() ORDER BY id DESC`
+    `SELECT * FROM payments WHERE DATE(created_at) = CURDATE() ORDER BY id DESC`,
   );
 
   todaysOrders.forEach((amt) => {
@@ -20,12 +20,51 @@ exports.getCategories = async (req, res) => {
   const [categories] = await db.query("SELECT * FROM categories");
   res.render("admin/categories", { layout: "admin", categories });
 };
+exports.categoryEdit = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const [category] = await db.query(`SELECT * FROM categories WHERE id=?`, [
+      id,
+    ]);
+
+    res.render("admin/editcategory", {
+      layout: "admin",
+      category: category[0],
+    });
+  } catch (error) {
+    console.log("error:", error);
+  }
+};
 
 exports.createCategory = async (req, res) => {
-  await db.query("INSERT INTO categories (name) VALUES (?)", [req.body.name]);
+  await db.query("INSERT INTO categories (name, image) VALUES (?,?)", [
+    req.body.name,
+    req.file.filename,
+  ]);
   res.redirect("/admin/categories");
 };
 
+exports.updateCategory = async (req, res) => {
+  const { id, name, old_image } = req.body;
+  try {
+    if (req.file) {
+      await db.query(" UPDATE categories set name=?, image=? WHERE id=?", [
+        name,
+        req.file.filename,
+        id,
+      ]);
+    } else {
+      await db.query(" UPDATE categories set name=?, image=? WHERE id=?", [
+        name,
+        old_image,
+        id,
+      ]);
+    }
+    res.redirect(`/admin/categories`);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 exports.getProducts = async (req, res) => {
   const [products] = await db.query(`
     SELECT p.*, c.name AS category FROM products p JOIN categories c ON p.category_id = c.id
@@ -46,17 +85,17 @@ exports.productedit = async (req, res) => {
     const [product] = await db.query(`SELECT * FROM products WHERE id=?`, [id]);
     const [product_details] = await db.query(
       `SELECT * FROM product_details WHERE product_id=?`,
-      [id]
+      [id],
     );
 
     const [productImages] = await db.query(
       `SELECT * FROM product_images WHERE product_id=?`,
-      [id]
+      [id],
     );
 
     const [swatches] = await db.query(
       `SELECT * FROM swatch WHERE product_id = ?`,
-      [id]
+      [id],
     );
 
     const product_images = productImages.map((sw) => {
@@ -103,7 +142,7 @@ exports.productUpdate = async (req, res) => {
         category_id,
         discount_percent,
         id,
-      ]
+      ],
     );
     res.redirect(`/admin/productedit/${id}`);
   } catch (err) {
@@ -152,7 +191,7 @@ exports.productDetailsEdit = async (req, res) => {
         waterproof,
         quantity,
         id,
-      ]
+      ],
     );
     res.redirect(`/admin/productedit/${product_id}`);
   } catch (err) {
@@ -185,7 +224,7 @@ exports.productimage = async (req, res) => {
   if (req.file) {
     await db.query(
       `INSERT INTO product_images (product_id, image_path) VALUES (?, ? )`,
-      [product_id, req.file.filename]
+      [product_id, req.file.filename],
     );
   }
   res.redirect(`/admin/productedit/${product_id}`);
@@ -197,13 +236,13 @@ exports.swatch = async (req, res) => {
   if (swatch_id) {
     await db.query(
       `UPDATE swatch set product_image=?, picture=?, name=? WHERE id=?`,
-      [product_image, req.file.filename, swatch_name, swatch_id]
+      [product_image, req.file.filename, swatch_name, swatch_id],
     );
   } else {
     if (req.file) {
       await db.query(
         `INSERT INTO swatch (product_id, product_image, picture, name) VALUES (?, ?, ?, ?)`,
-        [product_id, product_image, req.file.filename, swatch_name]
+        [product_id, product_image, req.file.filename, swatch_name],
       );
     }
   }
@@ -248,7 +287,7 @@ exports.createProduct = async (req, res) => {
         discount_percent || 0,
         category_id,
         req.file.filename,
-      ]
+      ],
     );
 
     const productId = result.insertId;
@@ -272,7 +311,7 @@ exports.createProduct = async (req, res) => {
         highlight,
         waterproof,
         quantity,
-      ]
+      ],
     );
 
     // save multiple images
@@ -309,7 +348,7 @@ exports.orderDetails = async (req, res) => {
    FROM orders O 
    LEFT JOIN order_items ON O.id = order_items.order_id 
    WHERE O.payment_id=?`,
-    [order_id]
+    [order_id],
   );
 
   // Step 2: Merge swatch fields into product object
@@ -324,7 +363,7 @@ exports.orderDetails = async (req, res) => {
         swatch_name: order.swatch_name,
         swatch_picture: order.swatch_picture,
       };
-    })
+    }),
   );
 
   res.render("admin/orderDetails", { layout: "admin", ordered });
@@ -390,7 +429,7 @@ exports.userAddressPDF = async (req, res) => {
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
     "Content-Disposition",
-    `attachment; filename=address_${user.name}.pdf`
+    `attachment; filename=address_${user.name}.pdf`,
   );
 
   // Pipe PDF to response
