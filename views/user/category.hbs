@@ -44,4 +44,24 @@
 
 </div>
 
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
 
+    {{#if hasPrev}}
+    <li class="page-item"><a class="page-link" href="?page={{prevPage}}">Previous</a></li>
+    {{/if}}
+
+    {{#each pages}}
+        {{#if active}}
+          <li class="page-item page-link"> <strong>{{number}}</strong></li>
+        {{else}}
+          <li class="page-item"> <a class="page-link" href="?page={{number}}">{{number}}</a></li>
+        {{/if}}
+    {{/each}}
+
+    {{#if hasNext}}
+    <li class="page-item"><a class="page-link" href="?page={{nextPage}}">Next</a></li>
+    {{/if}}
+
+    </ul>
+</nav>

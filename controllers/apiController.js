@@ -269,59 +269,91 @@ exports.deleteCart = async (req, res) => {
 };
 
 exports.productsByCategory = async (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
   try {
     const { id } = req.params;
-    const [rows] = await db.query(
+
+    let page = parseInt(req.query.page, 10) || 1;
+    let limit = parseInt(req.query.limit, 10) || 10;
+
+    // Validation
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+    if (limit > 100) limit = 100; // Prevent huge requests
+
+    const offset = (page - 1) * limit;
+
+    // Get total products in this category
+    const [[countResult]] = await db.query(
       `
-  SELECT 
-    p.id, p.name, p.slug, p.description, p.price, p.discount_percent,
-    c.name AS category,
-    (
-      SELECT pi.image_path 
-      FROM product_images pi 
-      WHERE pi.product_id = p.id 
-      LIMIT 1
-    ) AS image
-  FROM products p
-  JOIN categories c ON p.category_id = c.id
-  WHERE c.id = ?
-`,
+      SELECT COUNT(*) AS total
+      FROM products
+      WHERE category_id = ?
+      `,
       [id],
     );
 
-    //console.log(rows);
+    const totalItems = countResult.total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated products
+    const [rows] = await db.query(
+      `
+      SELECT
+        p.id,
+        p.name,
+        p.slug,
+        p.description,
+        p.price,
+        p.discount_percent,
+        c.name AS category,
+        (
+          SELECT pi.image_path
+          FROM product_images pi
+          WHERE pi.product_id = p.id
+          LIMIT 1
+        ) AS image
+      FROM products p
+      JOIN categories c ON p.category_id = c.id
+      WHERE c.id = ?
+      ORDER BY p.id DESC
+      LIMIT ?
+      OFFSET ?
+      `,
+      [id, limit, offset],
+    );
+
     const products = rows.map((p) => {
       const product = applyDiscount(p);
       const desc = product.description || "";
 
       return {
         ...product,
+        image: product.image
+          ? `${baseUrl}/assets/images${product.image.startsWith("/") ? "" : "/"}${product.image}`
+          : null,
         short_description:
           desc.length > 100 ? desc.slice(0, 100) + "..." : desc,
       };
     });
 
-    res.render("user/category", {
-      layout: "main",
-      products,
-      meta: {
-        title: "Swagly | Trendy Cosmetics and Fashion in India",
-        description:
-          "Swagly brings affordable, stylish cosmetics and fashion apparel tailored for Indian trends",
-        keywords:
-          "cosmetics India, affordable makeup, fashion apparels, Indian style, lipstick trends, dresses online, skincare India, Swagly",
-        ogTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
-        ogDescription:
-          "Affordable makeup and stylish fashion for Indian tastes. Subscribe now for exclusive updates.",
-        url: "https://swagly.in",
-        image: "https://swagly.in/logo.png",
-        type: "website",
-        twitterTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
-        twitterDescription: "Swagly. Get beauty + fashion curated for you.",
+    res.status(200).json({
+      success: true,
+      pagination: {
+        currentPage: page,
+        perPage: limit,
+        totalItems,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrevious: page > 1,
       },
+      data: products,
     });
   } catch (err) {
     logger.error("Product listing error: " + err.message);
-    res.status(500).send("Error loading products");
+    res.status(500).json({
+      success: false,
+      message: "Error loading products",
+    });
   }
 };

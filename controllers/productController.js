@@ -283,6 +283,7 @@ exports.deleteCart = async (req, res) => {
   }
 };
 
+/*
 exports.productsByCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -333,6 +334,94 @@ exports.productsByCategory = async (req, res) => {
         type: "website",
         twitterTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
         twitterDescription: "Swagly. Get beauty + fashion curated for you.",
+      },
+    });
+  } catch (err) {
+    logger.error("Product listing error: " + err.message);
+    res.status(500).send("Error loading products");
+  }
+};
+*/
+exports.productsByCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const offset = (page - 1) * limit;
+
+    // Total products
+    const [[countResult]] = await db.query(
+      `SELECT COUNT(*) AS total
+       FROM products
+       WHERE category_id = ?`,
+      [id],
+    );
+
+    const totalProducts = countResult.total;
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const pages = [];
+
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push({
+        number: i,
+        active: i === page,
+      });
+    }
+
+    // Products
+    const [rows] = await db.query(
+      `
+      SELECT
+        p.id,
+        p.name,
+        p.slug,
+        p.description,
+        p.price,
+        p.discount_percent,
+        c.name AS category,
+        (
+          SELECT pi.image_path
+          FROM product_images pi
+          WHERE pi.product_id = p.id
+          LIMIT 1
+        ) AS image
+      FROM products p
+      JOIN categories c ON p.category_id = c.id
+      WHERE c.id = ?
+      ORDER BY p.id DESC
+      LIMIT ?
+      OFFSET ?
+      `,
+      [id, limit, offset],
+    );
+
+    const products = rows.map((p) => {
+      const product = applyDiscount(p);
+      const desc = product.description || "";
+
+      return {
+        ...product,
+        short_description:
+          desc.length > 100 ? desc.slice(0, 100) + "..." : desc,
+      };
+    });
+
+    res.render("user/category", {
+      layout: "main",
+      products,
+      pages,
+      currentPage: page,
+      hasPrev: page > 1,
+      hasNext: page < totalPages,
+      prevPage: page - 1,
+      nextPage: page + 1,
+
+      meta: {
+        title: "Swagly | Trendy Cosmetics and Fashion in India",
+        description:
+          "Swagly brings affordable, stylish cosmetics and fashion apparel tailored for Indian trends",
       },
     });
   } catch (err) {
