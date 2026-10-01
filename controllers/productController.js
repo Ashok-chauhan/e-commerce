@@ -59,19 +59,20 @@ exports.homePage = async (req, res) => {
       categories,
       products,
       meta: {
-        title: "Swagly | Trendy Cosmetics and Fashion in India",
+        title: "Buy Makeup & Beauty Products Online in India | Swagly",
         description:
-          "Swagly brings affordable, stylish cosmetics and fashion apparel tailored for Indian trends",
+          "Shop makeup and beauty products online at Swagly. Explore lipsticks, lip tints, lip care, foundations, compact powders and more with great prices in India.",
         keywords:
-          "cosmetics India, affordable makeup, fashion apparels, Indian style, lipstick trends, dresses online, skincare India, Swagly",
-        ogTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
+          "cosmetics India, affordable makeup, Indian style, lipstick trends,  online, skincare India, Swagly",
+        ogTitle: "Buy Makeup & Beauty Products Online in India | Swagly",
         ogDescription:
-          "Affordable makeup and stylish fashion for Indian tastes. Subscribe now for exclusive updates.",
+          "Shop makeup and beauty products online at Swagly. Explore lipsticks, lip tints, lip care, foundations, compact powders and more with great prices in India.",
         url: "https://swagly.in",
         image: "https://swagly.in/logo.png",
         type: "website",
-        twitterTitle: "Swagly – Trendy Cosmetics and Fashion Apparels",
-        twitterDescription: "Swagly. Get beauty + fashion curated for you.",
+        twitterTitle: "Buy Makeup & Beauty Products Online in India | Swagly",
+        twitterDescription:
+          "Shop makeup and beauty products online at Swagly. Explore lipsticks, lip tints, lip care, foundations, compact powders and more with great prices in India.",
       },
     });
   } catch (err) {
@@ -344,7 +345,11 @@ exports.productsByCategory = async (req, res) => {
 */
 exports.productsByCategory = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
+    const [[categoryMeta]] = await db.query(
+      `SELECT * FROM categories WHERE slug=?`,
+      [slug],
+    );
 
     const page = parseInt(req.query.page) || 1;
     const limit = 12;
@@ -354,8 +359,8 @@ exports.productsByCategory = async (req, res) => {
     const [[countResult]] = await db.query(
       `SELECT COUNT(*) AS total
        FROM products
-       WHERE category_id = ?`,
-      [id],
+       WHERE category_slug = ?`,
+      [slug],
     );
 
     const totalProducts = countResult.total;
@@ -388,13 +393,13 @@ exports.productsByCategory = async (req, res) => {
           LIMIT 1
         ) AS image
       FROM products p
-      JOIN categories c ON p.category_id = c.id
-      WHERE c.id = ?
+      JOIN categories c ON p.category_slug = c.slug
+      WHERE c.slug = ?
       ORDER BY p.id DESC
       LIMIT ?
       OFFSET ?
       `,
-      [id, limit, offset],
+      [slug, limit, offset],
     );
 
     const products = rows.map((p) => {
@@ -419,9 +424,12 @@ exports.productsByCategory = async (req, res) => {
       nextPage: page + 1,
 
       meta: {
-        title: "Swagly | Trendy Cosmetics and Fashion in India",
+        title: "Buy Makeup & Beauty Products Online in India | Swagly",
         description:
-          "Swagly brings affordable, stylish cosmetics and fashion apparel tailored for Indian trends",
+          "Shop makeup and beauty products online at Swagly. Explore lipsticks, lip tints, lip care, foundations, compact powders and more with great prices in India.",
+        url: `https://swagly.in/category/${categoryMeta.slug}`,
+        image: `https://swagly.in/assets/images/${categoryMeta.image}`,
+        type: "ItemList",
       },
     });
   } catch (err) {

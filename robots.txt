@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Disallow: /cart
+Disallow: /admin
+Disallow: /login
+Disallow: /logout
+Disallow: /address
+Disallow: /register
+Disallow: /orders
+
+Sitemap: https://swagly.in/sitemap.xml

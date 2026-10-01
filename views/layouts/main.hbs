@@ -20,7 +20,11 @@
   <meta name="twitter:title" content="{{meta.twitterTitle}}">
   <meta name="twitter:description" content="{{meta.twitterDescription}}">
   <meta name="twitter:image" content="{{meta.image}}">
-
+  {{#if meta.url}}
+  <link rel="canonical" href="{{meta.url}}">
+  {{else}}
+  <link rel="canonical" href="https://swagly.in">
+  {{/if}}
   <link rel="icon" sizes="64x64" href="/swagly-circular-64x64.png?v=2" type="image/png">
 
   <link rel="stylesheet" href="/assets/css/style.css">

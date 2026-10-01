@@ -37,8 +37,9 @@ exports.categoryEdit = async (req, res) => {
 };
 
 exports.createCategory = async (req, res) => {
-  await db.query("INSERT INTO categories (name, image) VALUES (?,?)", [
+  await db.query("INSERT INTO categories (name, slug, image) VALUES (?,?,?)", [
     req.body.name,
+    slugify(req.body.name, { lower: true, strict: true }),
     req.file.filename,
   ]);
   res.redirect("/admin/categories");
@@ -48,17 +49,30 @@ exports.updateCategory = async (req, res) => {
   const { id, name, old_image } = req.body;
   try {
     if (req.file) {
-      await db.query(" UPDATE categories set name=?, image=? WHERE id=?", [
-        name,
-        req.file.filename,
-        id,
-      ]);
+      await db.query(
+        " UPDATE categories set name=?, slug=?, image=? WHERE id=?",
+        [
+          name,
+          slugify(name, { lower: true, strict: true }),
+          req.file.filename,
+          id,
+        ],
+      );
+      // update products category_slug
+      await db.query(
+        "UPDATE products set category_slug=? WHERE category_id=?",
+        [slugify(name, { lower: true, strict: true }), id],
+      );
     } else {
-      await db.query(" UPDATE categories set name=?, image=? WHERE id=?", [
-        name,
-        old_image,
-        id,
-      ]);
+      await db.query(
+        " UPDATE categories set name=?, slug=?, image=? WHERE id=?",
+        [name, slugify(name, { lower: true, strict: true }), old_image, id],
+      );
+      // update products category_slug
+      await db.query(
+        "UPDATE products set category_slug=? WHERE category_id=?",
+        [slugify(name, { lower: true, strict: true }), id],
+      );
     }
     res.redirect(`/admin/categories`);
   } catch (error) {
@@ -274,10 +288,15 @@ exports.createProduct = async (req, res) => {
     quantity,
   } = req.body;
   const slug = slugify(name, { lower: true, strict: true });
+
   try {
+    const [category] = await db.query(`SELECT * FROM categories WHERE id=?`, [
+      category_id,
+    ]);
+    const categorySlug = category[0].slug;
     // insert product first
     const [result] = await db.query(
-      "INSERT INTO products (name, meta_title, slug, description, price, discount_percent, category_id, image) VALUES (?, ?, ?, ?, ?,?,?,? )",
+      "INSERT INTO products (name, meta_title, slug, description, price, discount_percent, category_id, category_slug, image) VALUES (?, ?, ?, ?, ?,?,?,?,? )",
       [
         name,
         meta_title,
@@ -286,12 +305,12 @@ exports.createProduct = async (req, res) => {
         price,
         discount_percent || 0,
         category_id,
+        categorySlug,
         req.file.filename,
       ],
     );
 
     const productId = result.insertId;
-
     await db.query(
       "INSERT INTO product_details (product_id, sales_package, pack_of, brand, model, brand_color, care, skin_type, finish, duration, color, features,self_life, highlight, waterproof, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
@@ -314,16 +333,6 @@ exports.createProduct = async (req, res) => {
       ],
     );
 
-    // save multiple images
-    /** *******************************
-    if (req.files && req.files.length > 0) {
-      const imageInserts = req.files.map((file) => [productId, file.filename]);
-      await db.query(
-        "INSERT INTO product_images (product_id, image_path) VALUES ?",
-        [imageInserts]
-      );
-    }
-*/
     res.redirect("/admin/products");
   } catch (err) {
     console.error("Error adding product:", err);

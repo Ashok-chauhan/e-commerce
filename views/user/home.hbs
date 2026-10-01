@@ -13,7 +13,7 @@
       </div>
 
 <div class="products row mt-3 justify-content-center">
-  <h2 class="text-center display-6">Best Sellers</h2>
+  <h1 class="text-center display-6">Makeup & Beauty Products Online in India</h1>
   {{#each products}}
  
 {{!-- class="card-img-top" --}}
@@ -45,15 +45,37 @@
 
 <div class="row justify-content-center">
   
-  <h2 class="text-center display-6">Explore Categories</h2>
+    <h2 class="text-center display-6">Shop Makeup & Beauty Products Online</h2>
+  
+          <section class="text-center">
+
+              <p>
+                  Discover makeup and beauty essentials at Swagly, including
+                  lipsticks, lip tints, lip care, foundations, compact powders
+                  and other everyday beauty products.
+              </p>
+
+              <p>
+                  Explore products from popular beauty brands and find makeup
+                  essentials for everyday looks, special occasions and your
+                  personal beauty routine.
+              </p>
+
+              <p>
+                  From comfortable lip tints and matte lipsticks to foundations
+                  and face makeup, Swagly makes it easy to discover beauty
+                  products online in India.
+              </p>
+              </section>
+
   {{#each categories}}
   
 
         <div class="card text-center col-sm-2 mb-3 mb-sm-0">
            <div class="card-body">
-           <a href="/category/{{this.id}}"> <img src="/assets/images/{{this.image}}" class="picture" alt="{{this.name}}"></a>
+           <a href="/category/{{this.slug}}"> <img src="/assets/images/{{this.image}}" class="picture" alt="{{this.name}}"></a>
             <p> <h4 class="card-title">{{this.name}}</h4></p>
-            <a href="/category/{{this.id}}" class="btn btn-warning">Shop Now</a>
+            <a href="/category/{{this.slug}}" class="btn btn-warning">Shop Now</a>
           </div>
          
         </div>
