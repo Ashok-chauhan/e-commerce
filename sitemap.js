@@ -24,6 +24,6 @@ const db = require("./config/db"); // your DB connection file
 
   const xmlData = await streamToPromise(sitemap);
   // createWriteStream("./public/assets/pages/sitemap.xml").write(xmlData);
-  createWriteStream("./sitemap.xml").write(xmlData);
+  createWriteStream("./public/sitemap.xml").write(xmlData);
   console.log("Sitemap created successfully!");
 })();
